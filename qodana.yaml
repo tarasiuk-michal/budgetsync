@@ -1,0 +1,20 @@
+version: "1.0"
+linter: jetbrains/qodana-python:2024.2
+profile:
+  name: qodana.recommended
+include:
+  - name: CheckDependencyLicenses
+  - name: PyCompatibilityInspection
+  - name: PyMissingOrEmptyDocstringInspection
+  - name: PyMissingTypeHintsInspection
+  - name: PyUnresolvedReferencesInspection
+  - name: PyArgumentEqualDefaultInspection
+  - name: QodanaSanity
+  - name: UnsatisfiedRequirementInspection
+  - name: IgnoreFileDuplicateEntry
+  - name: Annotator
+  - name: EmptyDirectory
+  - name: InconsistentLineSeparators
+  - name: IncorrectFormatting
+  - name: ProblematicWhitespace
+  - name: TodoComment
