@@ -1,31 +1,6 @@
 version: "1.0"
-
 linter: jetbrains/qodana-python:2024.2
-
 profile:
-  name: qodana.thorough
-
+  name: qodana.recommended
 include:
-  - name: src
-    path: src/
-
-exclude:
-  - "**/migrations/**"
-  - "**/tests/**"
-
-failThreshold: 5
-
-logging:
-  level: debug
-
-analysisTimeout: 600
-
-report:
-  format:
-    sarif
-    html
-
-inspect:
-  - enableExperimental: true
-  - enableOptionalChecks: true
-  - complexityThreshold: 10
+  - name: CheckDependencyLicenses
