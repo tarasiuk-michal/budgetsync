@@ -1,6 +1,8 @@
 import os
 import sqlite3
 import sys
+from pathlib import Path
+
 import pytest
 
 from src.transaction_exporter import TransactionExporter
@@ -53,4 +55,4 @@ def exporter(test_db, test_csv, tmp_path):
     """Fixture to create a TransactionExporter instance."""
     # Ensure `test_csv` points to a location in the temporary pytest folder
     output_csv = tmp_path / "test.csv"
-    return TransactionExporter(str(test_db), str(output_csv))
+    return TransactionExporter(Path(test_db), Path(output_csv))

@@ -1,10 +1,12 @@
-import pytest
+import sys
+from unittest.mock import patch
+
+from src import config
+from src.main import main
 
 
 def test_main_script(mocker, test_db, test_csv):
     """Test the main script execution."""
-    from src.main import main
-    import sys
 
     # Simulate command-line arguments
     sys.argv = ['main.py', str(test_db), str(test_csv)]
@@ -24,15 +26,13 @@ def test_main_script(mocker, test_db, test_csv):
     # Mock CSVHandler.write_to_csv to verify behavior
     mock_write_csv = mocker.patch('src.csv_handler.CSVHandler.write_to_csv')
 
-    try:
+    # Mock sys.exit to prevent actual exits
+    with patch("sys.exit") as mock_exit:
         main()
+        mock_exit.assert_not_called()  # Ensure sys.exit() didn't get called
 
-        # Assert that `write_to_csv` was called with the correct arguments
-        mock_write_csv.assert_called_once_with(
-            str(test_csv),
-            ['id', 'kwota', 'data', 'opis', 'kategoria'],
-            [[1, '50,00', '01.01.2023', 'Groceries', 'spożywcze'],
-             [2, '30,00', '02.01.2023', 'Fuel', 'inne']]
-        )
-    except Exception as e:
-        pytest.fail(f"Main script failed: {e}")
+    # Verify CSV writing behavior
+    mock_write_csv.assert_called_once_with(test_csv, config.COLUMN_ORDER, [
+        [1, '50,00', '01.01.2023', 'Groceries', 'spożywcze'],
+        [2, '30,00', '02.01.2023', 'Fuel', 'inne']
+    ])
