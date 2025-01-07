@@ -10,7 +10,7 @@ class CSVHandler:
     """Handles reading and writing CSV files."""
 
     @staticmethod
-    def read_existing_csv(file_path: str) -> Set[Tuple[str]]:
+    def read_existing_csv(file_path: str) -> Set[Tuple[str, ...]]:
         """Reads existing rows from a CSV file into a set of tuples."""
         logger.debug(f"[{CSVHandler.__name__}] Entering read_existing_csv with file_path={file_path}")
         if not os.path.exists(file_path):

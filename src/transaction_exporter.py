@@ -16,7 +16,7 @@ class TransactionExporter:
     def __init__(self, db_file: str, output_csv: str):
         self.db_file = db_file
         self.output_csv = output_csv
-        self.existing_data: set[tuple[str]] = set()
+        self.existing_data: set[tuple[str, ...]] = set()
 
     def rename_existing_file(self) -> None:
         """Renames the existing CSV file to add a '_old' suffix."""
