@@ -4,6 +4,8 @@ import sys
 
 import pytest
 
+from src.transaction_exporter import TransactionExporter
+
 # Get the project root directory
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if project_root not in sys.path:
@@ -44,3 +46,10 @@ def test_db(tmp_path):
 def test_csv(tmp_path):
     """Creates a temporary directory for CSV file handling."""
     return tmp_path / "test.csv"
+
+@pytest.fixture
+def exporter(test_db, test_csv, tmp_path):
+    """Fixture to create a TransactionExporter instance."""
+    # Ensure `test_csv` points to a location in the temporary pytest folder
+    output_csv = tmp_path / "test.csv"
+    return TransactionExporter(str(test_db), str(output_csv))
