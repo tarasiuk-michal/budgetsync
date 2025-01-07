@@ -1,5 +1,5 @@
-import os
 import pytest
+
 
 def test_main_script(mocker, test_db, test_csv):
     """Test the main script execution."""

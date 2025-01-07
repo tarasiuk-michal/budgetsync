@@ -1,6 +1,7 @@
 import logging
-import sys
 import os
+import sys
+
 from src.transaction_exporter import TransactionExporter
 
 logger = logging.getLogger(__name__)

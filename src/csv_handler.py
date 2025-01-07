@@ -1,6 +1,6 @@
-import os
 import csv
 import logging
+import os
 from typing import List, Set, Tuple
 
 logger = logging.getLogger(__name__)

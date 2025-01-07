@@ -16,7 +16,7 @@ class TransactionExporter:
     def __init__(self, db_file: str, output_csv: str):
         self.db_file = db_file
         self.output_csv = output_csv
-        self.existing_data = set()
+        self.existing_data: set[tuple[str]] = set()
 
     def rename_existing_file(self) -> None:
         """Renames the existing CSV file to add a '_old' suffix."""
@@ -48,7 +48,8 @@ class TransactionExporter:
                 logger.error(f"[{TransactionExporter.__name__}] Error processing row {row}: {e}")
         return processed
 
-    def format_timestamp(self, unix_timestamp: int) -> str:
+    @staticmethod
+    def format_timestamp(unix_timestamp: int) -> str:
         """Formats the timestamp into a human-readable date."""
         try:
             return datetime.utcfromtimestamp(unix_timestamp).strftime("%d.%m.%Y")
@@ -56,7 +57,8 @@ class TransactionExporter:
             logger.error(f"[{TransactionExporter.__name__}] Error formatting timestamp {unix_timestamp}: {e}")
             return str(unix_timestamp)
 
-    def format_amount(self, amount: float) -> str:
+    @staticmethod
+    def format_amount(amount: float) -> str:
         """Formats the amount with a comma as the decimal separator."""
         try:
             return "{:,.2f}".format(float(amount)).replace('.', ',')
@@ -64,7 +66,8 @@ class TransactionExporter:
             logger.error(f"[{TransactionExporter.__name__}] Error formatting amount {amount}: {e}")
             return str(amount)
 
-    def map_category(self, category_fk: str) -> str:
+    @staticmethod
+    def map_category(category_fk: str) -> str:
         """Maps category_fk values to descriptive categories."""
         mapped_category = config.CATEGORY_MAPPING.get(str(category_fk), 'inne')
         if mapped_category == 'inne':

@@ -1,5 +1,3 @@
-from unittest.mock import patch, MagicMock
-
 def test_process_rows(exporter):
     """Test processing of rows into the correct format."""
     rows = [

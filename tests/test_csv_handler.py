@@ -1,13 +1,12 @@
 from src.csv_handler import CSVHandler
 
+
 def test_read_existing_csv(test_csv):
     """Test reading an existing CSV file."""
     # Write test data to fake CSV
     headers = ['id', 'opis', 'kwota', 'kategoria', 'data']
-    rows = [
-        ['1', 'Groceries', '50,00', 'spożywcze', '01.01.2023'],
-        ['2', 'Bus Ticket', '2,50', 'transport', '02.01.2023']
-    ]
+    rows = [['1', 'Groceries', '50,00', 'spożywcze', '01.01.2023'],
+            ['2', 'Bus Ticket', '2,50', 'transport', '02.01.2023']]
     with open(test_csv, 'w', encoding='utf-8') as f:
         f.write(";".join(headers) + "\n")
         for row in rows:
@@ -21,10 +20,8 @@ def test_read_existing_csv(test_csv):
 def test_write_to_csv(test_csv):
     """Test writing data to a CSV file."""
     headers = ['id', 'opis', 'kwota', 'kategoria', 'data']
-    rows = [
-        ['1', 'Groceries', '50,00', 'spożywcze', '01.01.2023'],
-        ['2', 'Bus Ticket', '2,50', 'transport', '02.01.2023']
-    ]
+    rows = [['1', 'Groceries', '50,00', 'spożywcze', '01.01.2023'],
+            ['2', 'Bus Ticket', '2,50', 'transport', '02.01.2023']]
     CSVHandler.write_to_csv(test_csv, headers, rows)
 
     # Read the file back and check its contents

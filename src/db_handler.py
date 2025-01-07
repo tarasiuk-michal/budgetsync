@@ -1,5 +1,5 @@
-import sqlite3
 import logging
+import sqlite3
 from typing import List, Tuple
 
 logger = logging.getLogger(__name__)
@@ -30,4 +30,4 @@ class DBHandler:
             raise
         finally:
             conn.close()
-        logger.debug(f"[{DBHandler.__name__}] Exiting fetch_transactions.")
+            logger.debug(f"[{DBHandler.__name__}] Exiting fetch_transactions.")

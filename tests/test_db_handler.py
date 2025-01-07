@@ -1,5 +1,6 @@
 from src.db_handler import DBHandler
 
+
 def test_fetch_transactions(test_db):
     """Test that transactions are fetched properly from the database."""
     db_path = str(test_db)
