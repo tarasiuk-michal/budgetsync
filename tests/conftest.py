@@ -1,7 +1,6 @@
 import os
 import sqlite3
 import sys
-from pathlib import Path
 
 import pytest
 
@@ -16,7 +15,7 @@ if project_root not in sys.path:
 @pytest.fixture
 def test_db(tmp_path):
     """Creates a temporary SQLite database for testing."""
-    db_path = tmp_path / "test.db"
+    db_path = os.path.abspath(str(tmp_path / "test.db"))  # Convert to absolute path
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     # Create schema
@@ -47,12 +46,12 @@ def test_db(tmp_path):
 @pytest.fixture
 def test_csv(tmp_path):
     """Creates a temporary directory for CSV file handling."""
-    return tmp_path / "test.csv"
+    return os.path.abspath(str(tmp_path / "test.csv"))  # Convert to absolute path
 
 
 @pytest.fixture
 def exporter(test_db, test_csv, tmp_path):
     """Fixture to create a TransactionExporter instance."""
     # Ensure `test_csv` points to a location in the temporary pytest folder
-    output_csv = tmp_path / "test.csv"
-    return TransactionExporter(Path(test_db), Path(output_csv))
+    output_csv = os.path.abspath(str(tmp_path / "test.csv"))  # Convert to absolute path
+    return TransactionExporter(test_db, output_csv)

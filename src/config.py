@@ -1,3 +1,21 @@
+"""
+Module: config
+
+This module contains configuration constants for transaction export operations, such as
+column mappings, export order, and category translations.
+
+Constants:
+    - DATE_FILTER: Defines the starting date for filtering transactions (format: "YYYY-MM-DD").
+    - COLUMN_MAPPING: Maps database column names to export CSV column names.
+    - COLUMN_ORDER: Specifies the desired column order in the export CSV.
+    - CATEGORY_MAPPING: Maps category foreign keys (`category_fk`) to human-readable category names.
+
+Usage:
+    Import this module to access configurations for database row mapping, filtering, or CSV
+    export formatting.
+
+"""
+
 # Constants for the configuration
 DATE_FILTER = '2025-01-01'
 

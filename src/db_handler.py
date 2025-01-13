@@ -1,5 +1,5 @@
+import os
 import sqlite3
-from pathlib import Path
 from typing import List, Tuple
 
 from src.utils.error_handling import log_exceptions, DatabaseError
@@ -11,9 +11,10 @@ class DBHandler(Logging):
 
     @staticmethod
     @log_exceptions(Logging.get_logger())
-    def fetch_transactions(db_path: Path, date_filter: str) -> List[Tuple]:
+    def fetch_transactions(db_path: str, date_filter: str) -> List[Tuple]:
         """Fetches transactions from the database filtered by date."""
         conn = None  # Initialize conn to None to ensure it is always defined
+        db_path = os.path.abspath(db_path)  # Convert the path to an absolute path
         logger = DBHandler.get_logger()
         logger.debug(f"Connecting to DB at {db_path}")
         try:

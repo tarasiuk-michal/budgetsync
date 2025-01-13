@@ -1,6 +1,5 @@
 import os
-from datetime import datetime
-from pathlib import Path
+from datetime import datetime, timezone
 from typing import List, Tuple
 
 from src import config
@@ -13,9 +12,10 @@ from src.utils.logger import Logging
 class TransactionExporter(Logging):
     """Handles the process of exporting transactions."""
 
-    def __init__(self, db_file: Path, output_csv: Path):
-        self.db_file = db_file
-        self.output_csv = output_csv
+    def __init__(self, db_file: str, output_csv: str):
+        # Convert input paths to absolute paths using os.path.abspath
+        self.db_file = os.path.abspath(db_file)
+        self.output_csv = os.path.abspath(output_csv)
         self.existing_data: set[tuple[str, ...]] = set()
 
     @log_exceptions(Logging.get_logger())
@@ -66,7 +66,7 @@ class TransactionExporter(Logging):
     def format_timestamp(unix_timestamp: int) -> str:
         """Converts a UNIX timestamp to a human-readable format."""
         try:
-            return datetime.fromtimestamp(unix_timestamp, tz=datetime.timezone.utc).strftime("%d.%m.%Y")
+            return datetime.fromtimestamp(unix_timestamp, tz=timezone.utc).strftime("%d.%m.%Y")
         except (ValueError, TypeError) as e:
             CSVHandler.get_logger().error(f"Error formatting timestamp {unix_timestamp}: {e}")
             return str(unix_timestamp)

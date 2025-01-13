@@ -4,15 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d56be55e-e60d-462e-9bb2-7cc18ce7d331" name="Changes" comment="Remove outdated .idea configuration files and update references.&#10;&#10;Deleted unnecessary .idea files to clean up project settings. Updated `tox.ini` and `README.md` references to reflect the updated lowercase project naming convention (`budgetsync`). These changes ensure consistency and remove obsolete files from version control.">
+    <list default="true" id="d56be55e-e60d-462e-9bb2-7cc18ce7d331" name="Changes" comment="Introduce logging, error handling, and refactor CSV operations.&#10;&#10;Added detailed logging and exception handling across CSV and DB operations to enhance robustness and debugging capability. Refactored methods for better readability and modularity, such as separating row mapping logic. Implemented decorators to centralize error logging and introduced custom exceptions for improved error specificity.">
       <changelist_data name="michal" email="tarasiuk.michal@gmail.com" date="1736746442000" automatic="true" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/csv_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/csv_handler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/db_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/db_handler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/transaction_exporter.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/transaction_exporter.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/error_handling.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/error_handling.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/logger.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/logger.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_transaction_exporter.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_transaction_exporter.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,17 +24,33 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="develop" />
+        <entry key="$PROJECT_DIR$" value="task/logging2" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="MIXED" />
   </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;nc-mita&quot;
-  }
-}</component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {}
+}]]></component>
+  <component name="GitHubPullRequestState"><![CDATA[{
+  "prStates": [
+    {
+      "id": {
+        "id": "PR_kwDONm0Rcc6HgTcQ",
+        "number": 3
+      },
+      "lastSeen": 1736761709279
+    }
+  ]
+}]]></component>
+  <component name="GithubProjectSettings">
+    <option name="branchProtectionPatterns">
+      <list>
+        <option value=".*" />
+      </list>
+    </option>
+  </component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/tarasiuk-michal/budgetsync.git&quot;,
@@ -56,17 +69,17 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "task/logging2",
-    "ignore.virus.scanning.warn.message": "true",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "ml.llm.AIAssistantPromptsLibrary",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;task/logging2&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;ml.llm.AIAssistantPromptsLibrary&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
