@@ -2,13 +2,6 @@ import csv
 import os
 from typing import List
 
-"""
-csv_handler.py
-
-This module provides functions and utilities for handling CSV files, 
-including reading existing records and writing new data.
-"""
-
 from src.utils.error_handling import log_exceptions, CSVError
 from src.utils.logger import Logging
 
@@ -35,13 +28,15 @@ class CSVHandler(Logging):
 
     @staticmethod
     @log_exceptions(Logging.get_logger())
-    def read_existing_csv(file_path: str) -> Set[Tuple[str, ...]]:
-        """Reads rows from an existing CSV file as a set of tuples."""
+    def read_existing_csv(file_path: str) -> List[List[str]]:
+        """Reads rows from an existing CSV file and returns them as a list of lists."""
         logger = CSVHandler.get_logger()
         logger.debug(f"[{CSVHandler.__name__}] Entering read_existing_csv with file_path={file_path}")
+
         if not os.path.exists(file_path):
-            logger.info(f"[{CSVHandler.__name__}] {file_path} does not exist. Returning empty data set.")
-            return set()
+            logger.info(f"[{CSVHandler.__name__}] {file_path} does not exist. Returning empty list.")
+            return []
+
         try:
             with open(os.path.abspath(file_path), 'r', encoding='utf-8') as file:
                 reader = csv.reader(file, delimiter=';')
@@ -50,8 +45,8 @@ class CSVHandler(Logging):
                 logger.debug(f"Read {len(rows)} rows from {file_path}")
                 return rows
         except FileNotFoundError:
-            logger.warning(f"File {os.path.abspath(file_path)} not found. Returning empty set.")
-            return set()
+            logger.warning(f"File {os.path.abspath(file_path)} not found. Returning empty list.")
+            return []
         except Exception as e:
             logger.error(f"Error reading CSV at {os.path.abspath(file_path)}: {e}")
             raise CSVError(f"Failed to read CSV file: {file_path}")

@@ -1,12 +1,14 @@
 import os
-
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import List, Tuple
+
+from pytz import utc, timezone
+
 from src import config
 from src.csv_handler import CSVHandler
 from src.db_handler import DBHandler
-from src.utils.logger import Logging
 from src.utils.error_handling import log_exceptions, TransactionProcessingError
+from src.utils.logger import Logging
 
 """
 transaction_exporter.py
@@ -20,8 +22,6 @@ Functionality:
     - Processes data (e.g., formatting dates, categorizing transactions).
     - Writes the processed transaction data to a CSV file.
 """
-
-logger = logging.getLogger(__name__)
 
 
 class TransactionExporter(Logging):

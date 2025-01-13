@@ -16,13 +16,6 @@ Usage:
 
 """
 
-"""
-config.py
-
-This module contains global configuration settings and constants used throughout the project.
-It includes mappings, column orders, filters, and timezone settings that allow for consistent and centralized project behavior.
-"""
-
 # Constants for the configuration
 DATE_FILTER = '2025-01-01'
 
