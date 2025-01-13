@@ -9,6 +9,13 @@ from src import config
 from src.csv_handler import CSVHandler
 from src.db_handler import DBHandler
 
+"""
+transaction_exporter.py
+
+This module handles exporting transaction data from a database to a CSV file,
+performing necessary transformations and formatting during the process.
+"""
+
 logger = logging.getLogger(__name__)
 
 

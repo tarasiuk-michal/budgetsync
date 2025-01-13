@@ -4,6 +4,14 @@ import sys
 
 from src.transaction_exporter import TransactionExporter
 
+"""
+main.py
+
+This script serves as the entry point for the application, handling 
+the execution flow for exporting transaction data from the database 
+to a CSV file.
+"""
+
 logger = logging.getLogger(__name__)
 
 

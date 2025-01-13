@@ -3,6 +3,13 @@ import logging
 import os
 from typing import List
 
+"""
+csv_handler.py
+
+This module provides functions and utilities for handling CSV files, 
+including reading existing records and writing new data.
+"""
+
 logger = logging.getLogger(__name__)
 
 
