@@ -1,6 +1,6 @@
-# BudgetSync
+# budgetsync
 
-BudgetSync is a lightweight tool designed to help individuals and organizations manage their financial budgets
+budgetsync is a lightweight tool designed to help individuals and organizations manage their financial budgets
 effectively. This application allows you to track income, expenses, and generate meaningful insights to better visualize
 and plan your finances.
 ---
@@ -10,7 +10,7 @@ and plan your finances.
 The project directory is organized as follows:
 
 ```
-BudgetSync/
+budgetsync/
 ├── src/                    # Source code for the application
 │   ├── main.py             # Entry point of the application
 │   ├── budget_manager.py   # Contains logic for handling budgets
