@@ -1,4 +1,20 @@
-import logging
+"""
+Module: config
+
+This module contains configuration constants for transaction export operations, such as
+column mappings, export order, and category translations.
+
+Constants:
+    - DATE_FILTER: Defines the starting date for filtering transactions (format: "YYYY-MM-DD").
+    - COLUMN_MAPPING: Maps database column names to export CSV column names.
+    - COLUMN_ORDER: Specifies the desired column order in the export CSV.
+    - CATEGORY_MAPPING: Maps category foreign keys (`category_fk`) to human-readable category names.
+
+Usage:
+    Import this module to access configurations for database row mapping, filtering, or CSV
+    export formatting.
+
+"""
 
 """
 config.py
@@ -31,11 +47,4 @@ CATEGORY_MAPPING = {
     '4': 'transport',
     'b952bfec-b4e0-4ec5-b621-0f46cbda4545': 'terapia',
     'a15d9070-bd80-4079-8764-08445f019730': 'transport',
-}
-
-# Logger configuration
-LOGGING_CONFIG = {
-    'level': logging.INFO,
-    'format': '%(asctime)s - %(levelname)s - %(message)s',
-    'datefmt': '%H:%M:%S',
 }

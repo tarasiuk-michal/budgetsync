@@ -1,4 +1,6 @@
 /.idea/
+/.idea/.name
+/.idea/misc.xml
 /.idea/workspace.xml
 /.tox/
 /venv/

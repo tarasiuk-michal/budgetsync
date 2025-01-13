@@ -3,7 +3,6 @@ from src.csv_handler import CSVHandler
 
 def test_read_existing_csv(test_csv):
     """Test reading an existing CSV file."""
-    # Write test data to fake CSV
     headers = ['id', 'opis', 'kwota', 'kategoria', 'data']
     rows = [['1', 'Groceries', '50,00', 'spożywcze', '01.01.2023'],
             ['2', 'Bus Ticket', '2,50', 'transport', '02.01.2023']]
@@ -12,9 +11,13 @@ def test_read_existing_csv(test_csv):
         for row in rows:
             f.write(";".join(row) + "\n")
 
+    # Call with correct static method signature
     data = CSVHandler.read_existing_csv(test_csv)
-    assert len(data) == 2
-    assert tuple(rows[0]) in data  # Ensure the first row exists in the results
+
+    assert data == {
+        ('1', 'Groceries', '50,00', 'spożywcze', '01.01.2023'),
+        ('2', 'Bus Ticket', '2,50', 'transport', '02.01.2023'),
+    }
 
 
 def test_write_to_csv(test_csv):
@@ -22,11 +25,11 @@ def test_write_to_csv(test_csv):
     headers = ['id', 'opis', 'kwota', 'kategoria', 'data']
     rows = [['1', 'Groceries', '50,00', 'spożywcze', '01.01.2023'],
             ['2', 'Bus Ticket', '2,50', 'transport', '02.01.2023']]
+
+    # Call with correct static method signature
     CSVHandler.write_to_csv(test_csv, headers, rows)
 
-    # Read the file back and check its contents
     with open(test_csv, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-    assert lines[0].strip() == ";".join(headers)
-    assert lines[1].strip() == ";".join(rows[0])
-    assert lines[2].strip() == ";".join(rows[1])
+        lines = f.read().strip().split("\n")
+        assert lines[0] == ";".join(headers)
+        assert lines[1:] == [";".join(row) for row in rows]
