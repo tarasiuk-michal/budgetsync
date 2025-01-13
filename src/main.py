@@ -1,49 +1,58 @@
 import os
 import sys
 
+from config import DB_FILE_PREFIX, DB_FILE_SUFFIX
+from src.file_handler import FileHandler
 from src.transaction_exporter import TransactionExporter
 from src.utils.logger import setup_logger
 
 """
 main.py
 
+Exports transaction data from the database to CSV files.
 
-This script serves as the main entry point for exporting transaction data from the database to a CSV file.
+Features:
+- Identifies the latest SQL database file with a defined prefix in the specified directory.
+- Generates the following files:
+    - `transactions.csv`: Stores new transactions.
+    - `transactions_history_previous.csv`: Backs up the previous transaction history.
+    - `transactions_history.csv`: Combines old and new transaction data.
 
 Usage:
-    python main.py <db_file> <output_csv>
+    python main.py [db_directory]
 
 Arguments:
-    db_file: Path to the SQLite database file.
-    output_csv: Path to the output CSV file.
-
-Functionality:
-    - Validates command-line arguments.
-    - Ensures the database file exists.
-    - Exports transactions from the database to the specified CSV file using the TransactionExporter class.
+    db_directory: Path to the directory containing SQL database files (defaults to the current directory).
 """
 
 logger = setup_logger(__name__)
 
 
 def main() -> None:
-    """Main entry-point script for data export."""
-    if len(sys.argv) != 3:
-        logger.error("Usage: python main.py <db_file> <output_csv>")
-        sys.exit(1)
-
-    db_file = os.path.abspath(sys.argv[1])  # Convert to absolute path
-    output_csv = os.path.abspath(sys.argv[2])  # Convert to absolute path
-
-    if not os.path.exists(db_file):
-        logger.error(f"Database file '{db_file}' does not exist.")
-        sys.exit(1)
+    """
+    Main script for locating the latest SQL database file and exporting transaction data to CSV files.
+    """
+    # Get database directory, default to the current directory if not provided
+    db_directory = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else os.getcwd()
+    logger.info(f"Looking for database files in: {db_directory}")
 
     try:
-        exporter = TransactionExporter(db_file, output_csv)
+        # Locate the latest 'cashew' SQL file in the directory
+        latest_sql_file = FileHandler.find_latest_sql_file(db_directory)
+        logger.info(f"Located latest '{DB_FILE_PREFIX}' '{DB_FILE_SUFFIX}' file: {latest_sql_file}")
+
+        # Output directory is the same as the database directory
+        output_dir = db_directory
+
+        # Initialize and execute transaction export
+        exporter = TransactionExporter(latest_sql_file, output_dir)
         exporter.fetch_and_export()
+
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"An error occurred: {e}")
+        logger.error(f"An unexpected error occurred: {e}")
         sys.exit(1)
 
 
