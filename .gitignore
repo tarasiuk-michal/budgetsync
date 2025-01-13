@@ -1,3 +1,5 @@
 /.idea/.name
 /.idea/misc.xml
 /export
+/.tox/
+/deps.txt

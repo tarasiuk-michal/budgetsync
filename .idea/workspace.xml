@@ -4,14 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d56be55e-e60d-462e-9bb2-7cc18ce7d331" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/BudgetSync.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tox.ini" beforeDir="false" afterPath="$PROJECT_DIR$/tox.ini" afterDir="false" />
+    <list default="true" id="d56be55e-e60d-462e-9bb2-7cc18ce7d331" name="Changes" comment="Remove outdated .idea configuration files and update references.&#10;&#10;Deleted unnecessary .idea files to clean up project settings. Updated `tox.ini` and `README.md` references to reflect the updated lowercase project naming convention (`budgetsync`). These changes ensure consistency and remove obsolete files from version control.">
+      <changelist_data name="michal" email="tarasiuk.michal@gmail.com" date="1736746442000" automatic="true" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/csv_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/csv_handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/db_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/db_handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/transaction_exporter.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/transaction_exporter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/error_handling.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/error_handling.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/logger.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/logger.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_transaction_exporter.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_transaction_exporter.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,12 +20,32 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="michal &lt;tarasiuk.michal@gmail.com&gt;" />
+      </list>
+    </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="task/logging" />
+        <entry key="$PROJECT_DIR$" value="develop" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;nc-mita&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/tarasiuk-michal/budgetsync.git&quot;,
+    &quot;accountId&quot;: &quot;9a89a4ed-beb9-497d-9508-f25149442369&quot;
+  }
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
@@ -39,18 +60,13 @@
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "develop",
+    "git-widget-placeholder": "task/logging2",
+    "ignore.virus.scanning.warn.message": "true",
     "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "ml.llm.AIAssistantPromptsLibrary",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-python-sdk-495700d161d3-aa17d162503b-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-243.22562.220" />
-      </set>
-    </attachedChunks>
-  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -76,5 +92,15 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
+    <MESSAGE value="Remove outdated .idea configuration files and update references.&#10;&#10;Deleted unnecessary .idea files to clean up project settings. Updated `tox.ini` and `README.md` references to reflect the updated lowercase project naming convention (`budgetsync`). These changes ensure consistency and remove obsolete files from version control." />
+    <MESSAGE value="Add error handling and logging improvements&#10;&#10;Introduced custom exceptions (`CSVError`, `DatabaseError`, and `TransactionProcessingError`) and applied a `@log_exceptions` decorator to log errors in key methods. Enhanced CSV and database handling with improved logging, code refactoring, and better handling of edge cases such as missing files or invalid data. Added unittests to verify logging for skipped rows." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add error handling and logging improvements&#10;&#10;Introduced custom exceptions (`CSVError`, `DatabaseError`, and `TransactionProcessingError`) and applied a `@log_exceptions` decorator to log errors in key methods. Enhanced CSV and database handling with improved logging, code refactoring, and better handling of edge cases such as missing files or invalid data. Added unittests to verify logging for skipped rows." />
+    <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
 </project>
