@@ -8,7 +8,7 @@ from src.utils.logger import Logging
 """
 db_handler.py
 
-This module provides functionality to interact with the database. 
+This module provides functionality to interact with the database.
 It includes methods to connect to the database and fetch transaction data filtered by specific criteria.
 
 Classes:

@@ -3,7 +3,7 @@ import csv
 """
 file_handler.py
 
-This module provides utilities for managing file operations, 
+This module provides utilities for managing file operations,
 specifically writing data to CSV files.
 """
 
