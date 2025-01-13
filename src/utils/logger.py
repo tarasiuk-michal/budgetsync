@@ -1,5 +1,15 @@
 import logging
 
+"""
+logger.py
+
+This module handles logging functionality for the application.
+
+Functionality:
+    - Configures loggers for different levels (info, debug, error, etc.).
+    - Writes log messages to console or log files.
+"""
+
 LOGGING_LEVEL = logging.DEBUG
 LOGGING_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 LOGGING_DATEFMT = '%H:%M:%S'

@@ -4,6 +4,24 @@ import sys
 from src.transaction_exporter import TransactionExporter
 from src.utils.logger import setup_logger
 
+"""
+main.py
+
+This script serves as the main entry point for exporting transaction data from the database to a CSV file.
+
+Usage:
+    python main.py <db_file> <output_csv>
+
+Arguments:
+    db_file: Path to the SQLite database file.
+    output_csv: Path to the output CSV file.
+
+Functionality:
+    - Validates command-line arguments.
+    - Ensures the database file exists.
+    - Exports transactions from the database to the specified CSV file using the TransactionExporter class.
+"""
+
 logger = setup_logger(__name__)
 
 

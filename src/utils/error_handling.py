@@ -1,5 +1,18 @@
 import functools
 
+"""
+error_handling.py
+
+This module provides custom error handling functionality for the application.
+
+Classes:
+    CustomError: Base class for custom application exceptions.
+    DatabaseError: Exception for handling database-related errors.
+
+Functionality:
+    - Defines and raises custom exceptions for better error management.
+"""
+
 
 class CSVError(Exception):
     """Custom exception for CSV-related operations."""
@@ -20,8 +33,10 @@ def log_exceptions(logger):
     """
 
     def decorator(func):
+        """A decorator function to add additional functionality to another function or method."""
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
+            """Wrapper function to handle exceptions."""
             try:
                 return func(*args, **kwargs)
             except Exception as e:

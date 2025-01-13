@@ -5,6 +5,19 @@ from typing import List, Tuple
 from src.utils.error_handling import log_exceptions, DatabaseError
 from src.utils.logger import Logging
 
+"""
+db_handler.py
+
+This module provides functionality to interact with the database. 
+It includes methods to connect to the database and fetch transaction data filtered by specific criteria.
+
+Classes:
+    DBHandler: Handles database operations like fetching transactions.
+
+Exceptions:
+    DatabaseError: Custom exception raised for database operation errors.
+"""
+
 
 class DBHandler(Logging):
     """Handles database interactions."""

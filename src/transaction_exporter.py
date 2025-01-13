@@ -8,6 +8,20 @@ from src.db_handler import DBHandler
 from src.utils.error_handling import log_exceptions, TransactionProcessingError
 from src.utils.logger import Logging
 
+"""
+transaction_exporter.py
+
+This module handles the export of transaction data from a database to a CSV file.
+
+Classes:
+    TransactionExporter: Handles fetching, processing, and exporting transaction data.
+
+Functionality:
+    - Connects to the database and retrieves transaction records.
+    - Processes data (e.g., formatting dates, categorizing transactions).
+    - Writes the processed transaction data to a CSV file.
+"""
+
 
 class TransactionExporter(Logging):
     """Handles the process of exporting transactions."""
@@ -53,6 +67,7 @@ class TransactionExporter(Logging):
         return processed
 
     def map_row(self, row: Tuple) -> dict:
+        """Maps a database row (tuple) to a formatted list for CSV export."""
         return {
             'id': row[0],
             'opis': row[1],
