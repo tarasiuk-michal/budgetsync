@@ -6,14 +6,27 @@ LOGGING_DATEFMT = '%H:%M:%S'
 
 
 def setup_logger(class_name: str) -> logging.Logger:
-    """Set up a logger for a specific class."""
-    logging.basicConfig(
-        level=LOGGING_LEVEL,
-        format=LOGGING_FORMAT,
-        datefmt=LOGGING_DATEFMT,
-        force=True,  # Ensures no existing logging handlers interfere
-    )
-    return logging.getLogger(class_name)
+    """Set up and return a logger for a specific class with a StreamHandler."""
+    logger = logging.getLogger(class_name)
+
+    # If no handlers are attached, configure the logger (prevent duplicates)
+    if not logger.hasHandlers():
+        # Create a stream handler
+        stream_handler = logging.StreamHandler()
+
+        # Set the log format and level
+        formatter = logging.Formatter(fmt=LOGGING_FORMAT, datefmt=LOGGING_DATEFMT)
+        stream_handler.setFormatter(formatter)
+        stream_handler.setLevel(LOGGING_LEVEL)
+
+        # Add the handler to the logger
+        logger.addHandler(stream_handler)
+
+    # Set the logger's overall logging level and enable propagation
+    logger.setLevel(LOGGING_LEVEL)
+    logger.propagate = True
+
+    return logger
 
 
 class Logging:

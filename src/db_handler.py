@@ -1,20 +1,24 @@
 import sqlite3
 from pathlib import Path
 from typing import List, Tuple
+
+from src.utils.error_handling import log_exceptions, DatabaseError
 from src.utils.logger import Logging
 
 
 class DBHandler(Logging):
-    """Handles interactions with the database."""
+    """Handles database interactions."""
 
     @staticmethod
+    @log_exceptions(Logging.get_logger())
     def fetch_transactions(db_path: Path, date_filter: str) -> List[Tuple]:
-        """Fetch transactions after the given date from the database."""
-        logger = DBHandler.get_logger()  # Static method access to logger
-        logger.debug("Entering fetch_transactions with db_path={db_path} and date_filter={date_filter}")
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
+        """Fetches transactions from the database filtered by date."""
+        conn = None  # Initialize conn to None to ensure it is always defined
+        logger = DBHandler.get_logger()
+        logger.debug(f"Connecting to DB at {db_path}")
         try:
+            conn = sqlite3.connect(db_path)  # Try to create the database connection
+            cursor = conn.cursor()
             query = """
                 SELECT transaction_pk, name, amount, category_fk, date_created
                 FROM transactions
@@ -22,11 +26,12 @@ class DBHandler(Logging):
             """
             cursor.execute(query, (date_filter,))
             rows = cursor.fetchall()
-            logger.debug("Fetched {len(rows)} transactions.")
+            logger.info(f"Fetched {len(rows)} transactions.")
             return rows
         except sqlite3.OperationalError as e:
             logger.error(f"Database operation failed: {e}")
-            raise
+            raise DatabaseError(f"Failed to fetch transactions: {e}")
         finally:
-            conn.close()
-            logger.debug("Exiting fetch_transactions.")
+            if conn:  # Ensure conn is only closed if it was successfully initialized
+                conn.close()
+                logger.debug("Database connection closed.")

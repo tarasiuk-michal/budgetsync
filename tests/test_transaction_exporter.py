@@ -1,3 +1,6 @@
+import logging
+
+
 def test_process_rows(exporter):
     """Test processing of rows into the correct format."""
     rows = [
@@ -39,3 +42,20 @@ def test_fetch_and_export(mocker, exporter):
     assert len(lines) > 1  # Includes headers + data rows
     assert '1;50,00;01.01.2023;Groceries;spożywcze' in lines[1]
     assert '2;30,00;02.01.2023;Fuel;' in lines[2]  # Ensure the second entry exists
+
+
+def test_process_rows_logging(exporter, caplog):
+    rows = [(1, 'Test', None, '999', 1672531200)]  # Missing data for kwota
+
+    # Set caplog level to ensure it captures warnings
+    caplog.set_level(logging.WARNING)
+
+    # Call the process_rows function
+    exporter.process_rows(rows)
+
+    # Debug logs for verification
+    print(caplog.text)  # Temporary - see if logging is captured at all in the test
+
+    # Validate that warnings for skipped rows are logged
+    assert "Skipping row" in caplog.text
+    assert "NoneType" in caplog.text
