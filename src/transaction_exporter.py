@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 from typing import List, Tuple
 
-import pytz
+from pytz import timezone, utc
 
 from src import config
 from src.csv_handler import CSVHandler
@@ -55,9 +55,9 @@ class TransactionExporter:
         """Formats the timestamp into a human-readable date with the timezone specified in config."""
         try:
             # Load timezone from config
-            local_tz = pytz.timezone(config.TIMEZONE)
+            local_tz = timezone(config.TIMEZONE)
             # Convert to timezone-aware datetime
-            localized_time = datetime.fromtimestamp(unix_timestamp, tz=pytz.utc).astimezone(local_tz)
+            localized_time = datetime.fromtimestamp(unix_timestamp, tz=utc).astimezone(local_tz)
             return localized_time.strftime("%d.%m.%Y")
         except (ValueError, TypeError) as e:
             logger.error(f"[{TransactionExporter.__name__}] Error formatting timestamp {unix_timestamp}: {e}")

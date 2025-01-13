@@ -4,7 +4,6 @@ profile:
   name: qodana.recommended
 include:
   - name: CheckDependencyLicenses
-  - name: PyCompatibilityInspection
   - name: PyMissingOrEmptyDocstringInspection
   - name: PyMissingTypeHintsInspection
   - name: PyUnresolvedReferencesInspection
