@@ -3,20 +3,29 @@ import os
 from datetime import datetime
 from typing import List, Tuple
 
+from pytz import timezone, utc
+
 from src import config
 from src.csv_handler import CSVHandler
 from src.db_handler import DBHandler
+
+"""
+transaction_exporter.py
+
+This module handles exporting transaction data from a database to a CSV file,
+performing necessary transformations and formatting during the process.
+"""
 
 logger = logging.getLogger(__name__)
 
 
 class TransactionExporter:
-    """Handles the entire process of exporting transactions."""
+    """Handles the process of exporting transactions."""
 
     def __init__(self, db_file: str, output_csv: str):
         self.db_file = db_file
         self.output_csv = output_csv
-        self.existing_data: set[tuple[str, ...]] = set()
+        self.existing_data: List[List[str]] = []  # Changed to List[List[str]]
 
     def rename_existing_file(self) -> None:
         """Renames the existing CSV file to add a '_old' suffix."""
@@ -50,9 +59,13 @@ class TransactionExporter:
 
     @staticmethod
     def format_timestamp(unix_timestamp: int) -> str:
-        """Formats the timestamp into a human-readable date."""
+        """Formats the timestamp into a human-readable date with the timezone specified in config."""
         try:
-            return datetime.utcfromtimestamp(unix_timestamp).strftime("%d.%m.%Y")
+            # Load timezone from config
+            local_tz = timezone(config.TIMEZONE)
+            # Convert to timezone-aware datetime
+            localized_time = datetime.fromtimestamp(unix_timestamp, tz=utc).astimezone(local_tz)
+            return localized_time.strftime("%d.%m.%Y")
         except (ValueError, TypeError) as e:
             logger.error(f"[{TransactionExporter.__name__}] Error formatting timestamp {unix_timestamp}: {e}")
             return str(unix_timestamp)
@@ -77,8 +90,15 @@ class TransactionExporter:
 
     def fetch_and_export(self) -> None:
         """Fetches data from the database, processes it, and exports it to CSV."""
-        if os.path.exists(self.output_csv):
-            self.rename_existing_file()
+        history_file = self.output_csv
+        history_backup_file = f"{os.path.splitext(self.output_csv)[0]}_previous{os.path.splitext(self.output_csv)[1]}"
+        new_records_file = f"{os.path.splitext(self.output_csv)[0]}_new{os.path.splitext(self.output_csv)[1]}"
+
+        # Backup the existing history file if it exists
+        if os.path.exists(history_file):
+            if os.path.exists(history_backup_file):
+                os.remove(history_backup_file)
+            os.rename(history_file, history_backup_file)
 
         # Fetch transactions
         transactions = DBHandler.fetch_transactions(self.db_file, config.DATE_FILTER)
@@ -87,14 +107,19 @@ class TransactionExporter:
         processed_data = self.process_rows(transactions)
 
         # Read existing data from the CSV file to avoid duplication
-        self.existing_data = CSVHandler.read_existing_csv(self.output_csv)
+        self.existing_data = CSVHandler.read_existing_csv(history_file)  # Already returns List[List[str]]
 
         # Filter out already existing rows
-        new_data = [row for row in processed_data if tuple(row) not in self.existing_data]
+        new_data = [row for row in processed_data if row not in self.existing_data]
+
+        # Export only the new records to the new records file
+        CSVHandler.write_to_csv(new_records_file, config.COLUMN_ORDER, new_data)
 
         if not new_data:
             logger.info(f"[{TransactionExporter.__name__}] No new transactions to export.")
         else:
-            CSVHandler.write_to_csv(self.output_csv, config.COLUMN_ORDER, new_data)
+            # Merge new data into the history file
+            updated_history_data = self.existing_data + new_data
+            CSVHandler.write_to_csv(history_file, config.COLUMN_ORDER, updated_history_data)
             logger.info(
-                f"[{TransactionExporter.__name__}] Exported {len(new_data)} new transactions to '{self.output_csv}'.")
+                f"[{TransactionExporter.__name__}] Exported {len(new_data)} new transactions to '{new_records_file}'.")

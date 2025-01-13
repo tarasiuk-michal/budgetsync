@@ -2,6 +2,13 @@ import logging
 import sqlite3
 from typing import List, Tuple
 
+"""
+db_handler.py
+
+This module provides utilities for interacting with the database, 
+including fetching transaction data based on specified filters.
+"""
+
 logger = logging.getLogger(__name__)
 
 

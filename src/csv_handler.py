@@ -1,7 +1,14 @@
 import csv
 import logging
 import os
-from typing import List, Set, Tuple
+from typing import List
+
+"""
+csv_handler.py
+
+This module provides functions and utilities for handling CSV files, 
+including reading existing records and writing new data.
+"""
 
 logger = logging.getLogger(__name__)
 
@@ -10,22 +17,22 @@ class CSVHandler:
     """Handles reading and writing CSV files."""
 
     @staticmethod
-    def read_existing_csv(file_path: str) -> Set[Tuple[str, ...]]:
-        """Reads existing rows from a CSV file into a set of tuples."""
+    def read_existing_csv(file_path: str) -> List[List[str]]:
+        """Reads existing rows from a CSV file into a list of lists of strings."""
         logger.debug(f"[{CSVHandler.__name__}] Entering read_existing_csv with file_path={file_path}")
         if not os.path.exists(file_path):
-            logger.info(f"[{CSVHandler.__name__}] {file_path} does not exist. Returning empty data set.")
-            return set()
+            logger.info(f"[{CSVHandler.__name__}] {file_path} does not exist. Returning empty data list.")
+            return []
 
         try:
             with open(file_path, 'r', encoding='utf-8') as file:
-                reader = csv.DictReader(file, delimiter=';')
-                data = {tuple(row.values()) for row in reader}
+                reader = csv.reader(file, delimiter=';')
+                data = [list(row) for row in reader]
                 logger.debug(f"[{CSVHandler.__name__}] Read {len(data)} existing rows from CSV.")
                 return data
         except Exception as e:
             logger.error(f"[{CSVHandler.__name__}] Error reading CSV file {file_path}: {e}")
-            return set()
+            return []
 
     @staticmethod
     def write_to_csv(file_path: str, headers: List[str], rows: List[List[str]]) -> None:
