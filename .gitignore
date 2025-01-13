@@ -1,2 +1,6 @@
 /.idea/.name
 /.idea/misc.xml
+/.idea/workspace.xml
+/export
+/.tox/
+/deps.txt
