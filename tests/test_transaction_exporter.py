@@ -1,3 +1,6 @@
+import src.file_handler
+
+
 def test_process_rows(exporter):
     """Test processing of rows into the correct format."""
     rows = [
@@ -39,3 +42,28 @@ def test_fetch_and_export(mocker, exporter):
     assert len(lines) > 1  # Includes headers + data rows
     assert '1;50,00;01.01.2023;Groceries;spożywcze' in lines[1]
     assert '2;30,00;02.01.2023;Fuel;' in lines[2]  # Ensure the second entry exists
+
+
+def test_output_to_multiple_files(mocker, exporter):
+    """Test output to history, backup, and new records files."""
+    rows = [
+        (1, 'Groceries', 50.00, '2', 1672531200),
+        (2, 'Fuel', 30.00, '3', 1672617600)
+    ]
+
+    # Mock component interactions
+    mocker.patch(
+        'src.file_handler.FileHandler.write_to_file',
+        side_effect=[None, None, None]
+    )
+
+    exporter.output_files(rows)
+
+    # Verify each file is written
+    history_output = f"{exporter.output_csv}_history.csv"
+    backup_output = f"{exporter.output_csv}_backup.csv"
+    new_records_output = f"{exporter.output_csv}_new.csv"
+
+    mocker.patch.object(src.file_handler.FileHandler, 'write_to_file').assert_any_call(history_output, rows)
+    mocker.patch.object(src.file_handler.FileHandler, 'write_to_file').assert_any_call(backup_output, rows)
+    mocker.patch.object(src.file_handler.FileHandler, 'write_to_file').assert_any_call(new_records_output, rows)

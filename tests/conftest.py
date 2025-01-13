@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import sys
+
 import pytest
 
 from src.transaction_exporter import TransactionExporter

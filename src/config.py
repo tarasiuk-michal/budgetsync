@@ -3,6 +3,9 @@ import logging
 # Constants for the configuration
 DATE_FILTER = '2025-01-01'
 
+# Define the timezone for the project
+TIMEZONE = "Europe/Warsaw"
+
 # Mapping of database column names to export file column names
 COLUMN_MAPPING = {
     'transaction_pk': 'id',
