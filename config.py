@@ -53,8 +53,7 @@ COLUMN_MAPPING = {
 }
 
 # Desired column order for the export (mapped names)
-COLUMN_ORDER = ['id', 'kwota', 'data', 'opis', 'kategoria']
-
+COLUMN_ORDER = ['id', 'opis', 'kwota', 'kategoria', 'data']
 # Mapping for category_fk values
 CATEGORY_MAPPING = {
     '2': 'spożywcze',
