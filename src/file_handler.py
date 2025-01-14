@@ -1,7 +1,7 @@
 import csv
 import os
 import re
-from _typeshed import SupportsWrite
+from _typeshed import SupportsWrite  # noqa: F401
 from datetime import datetime
 from typing import Optional
 
@@ -78,3 +78,37 @@ class FileHandler:
             return os.path.abspath(latest_file)
         except ValueError:
             raise FileNotFoundError(f"No valid timestamp found in the {DB_FILE_PREFIX} {DB_FILE_SUFFIX} file names.")
+
+    @staticmethod
+    def get_db_directory(cli_args) -> str:
+        """
+        Determines the database directory.
+
+        :param cli_args: The list of command-line arguments.
+        :return: The path to the database directory.
+        """
+        # If the first CLI argument is provided, use it as the db_directory
+        if len(cli_args) > 1:
+            return os.path.abspath(cli_args[1])
+        else:
+            # Default: Look for ./db relative to script location, then fallback to ./
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            db_dir = os.path.join(script_dir, "db")
+            return db_dir if os.path.exists(db_dir) else os.getcwd()
+
+    @staticmethod
+    def get_output_directory(cli_args) -> str:
+        """
+        Determines the output directory.
+
+        :param cli_args: The list of command-line arguments.
+        :return: The path to the output directory.
+        """
+        # If the second CLI argument is provided, use it as the output_directory
+        if len(cli_args) > 2:
+            return os.path.abspath(cli_args[2])
+        else:
+            # Default: Save files in ./output relative to script location, then fallback to ./
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            output_dir = os.path.join(script_dir, "output")
+            return output_dir if os.path.exists(output_dir) else os.getcwd()

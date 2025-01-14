@@ -1,6 +1,6 @@
 import csv
 import os
-from _typeshed import SupportsWrite
+from _typeshed import SupportsWrite  # noqa: F401
 from typing import List
 
 from src.utils.error_handling import log_exceptions, CSVError
