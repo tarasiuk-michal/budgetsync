@@ -1,5 +1,6 @@
 import csv
 import os
+from _typeshed import SupportsWrite
 from typing import List
 
 from src.utils.error_handling import log_exceptions, CSVError
@@ -38,7 +39,7 @@ class CSVHandler(Logging):
             return []
 
         try:
-            with open(os.path.abspath(file_path), 'r', encoding='utf-8') as file:
+            with open(os.path.abspath(file_path), encoding='utf-8') as file:
                 reader = csv.reader(file, delimiter=';')
                 next(reader, None)  # Skip the header
                 rows = [list(row) for row in reader]
@@ -58,7 +59,8 @@ class CSVHandler(Logging):
         """Writes rows to a CSV file with the specified headers."""
         logger = CSVHandler.get_logger()
         try:
-            with open(os.path.abspath(file_path), 'w', encoding='utf-8', newline="") as file:
+            with open(os.path.abspath(file_path), 'w', encoding='utf-8',
+                      newline="") as file:  # type: SupportsWrite[str]
                 writer = csv.writer(file, delimiter=';')
                 writer.writerow(headers)  # Write headers
                 writer.writerows(rows)

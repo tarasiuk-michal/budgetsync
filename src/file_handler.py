@@ -1,6 +1,7 @@
 import csv
 import os
 import re
+from _typeshed import SupportsWrite
 from datetime import datetime
 from typing import Optional
 
@@ -23,8 +24,8 @@ class FileHandler:
         :raises IOError: If an error occurs while writing to the file.
         """
         try:
-            with open(file_path, mode='w', newline='', encoding='utf-8') as csv_file:
-                writer = csv.writer(csv_file, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            with open(file_path, mode='w', newline='', encoding='utf-8') as csv_file:  # type: SupportsWrite[str]
+                writer = csv.writer(csv_file, delimiter=';', quoting=csv.QUOTE_MINIMAL)
                 writer.writerows(rows)
         except Exception as e:
             raise IOError(f"Failed to write to file {file_path}: {e}")
