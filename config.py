@@ -48,16 +48,12 @@ COLUMN_MAPPING = {
     'transaction_pk': 'id',
     'name': 'opis',
     'amount': 'kwota',
-    'category_fk': 'kategoria',
+    'category_name': 'kategoria',
     'date_created': 'data',
 }
 
 # Desired column order for the export (mapped names)
 COLUMN_ORDER = ['id', 'opis', 'kwota', 'kategoria', 'data']
-# Mapping for category_fk values
-CATEGORY_MAPPING = {
-    '2': 'spożywcze',
-    '4': 'transport',
-    'b952bfec-b4e0-4ec5-b621-0f46cbda4545': 'terapia',
-    'a15d9070-bd80-4079-8764-08445f019730': 'transport',
-}
+
+# List of category names
+CATEGORIES = ['spożywcze', 'transport', 'przyjemności', 'inne']

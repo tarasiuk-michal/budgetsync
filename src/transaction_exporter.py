@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 from typing import List, Tuple
-from zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import config
 from src.csv_handler import CSVHandler
@@ -102,11 +102,16 @@ class TransactionExporter(Logging):
     def format_timestamp(unix_timestamp: int) -> str:
         """Formats the UNIX timestamp into a human-readable date using the configured timezone."""
         try:
-            local_tz = ZoneInfo(config.TIMEZONE)  # Use ZoneInfo instead of pytz
+            local_tz = ZoneInfo(config.TIMEZONE)
+
+            # Convert the timestamp to localized time
             localized_time = datetime.fromtimestamp(unix_timestamp, tz=local_tz)
-            return localized_time.strftime("%d.%m.%Y")
-        except (ValueError, TypeError) as e:
-            Logging.get_logger().error(f"Error formatting timestamp {unix_timestamp}: {e}")
+            return localized_time.strftime("%Y-%m-%d")
+        except (ZoneInfoNotFoundError, ValueError, TypeError) as e:
+            # Handle errors and provide fallback
+            Logging.get_logger().error(
+                f"Error formatting timestamp {unix_timestamp} with timezone '{config.TIMEZONE}': {e}"
+            )
             return str(unix_timestamp)
 
     @staticmethod
@@ -115,6 +120,7 @@ class TransactionExporter(Logging):
         return "{:,.2f}".format(float(amount)).replace('.', ',')
 
     @staticmethod
-    def map_category(category_fk: str) -> str:
+    def map_category(category_name: str) -> str:
         """Maps category foreign keys to their corresponding names."""
-        return config.CATEGORY_MAPPING.get(str(category_fk), 'inne')
+        cat: str = category_name.lower()
+        return cat if cat in config.CATEGORIES else 'inne'
