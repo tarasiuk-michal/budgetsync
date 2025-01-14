@@ -19,10 +19,13 @@ Features:
     - `transactions_history.csv`: Combines old and new transaction data.
 
 Usage:
-    python main.py [db_directory]
+    python main.py [db_directory] [output_directory]
 
 Arguments:
-    db_directory: Path to the directory containing SQL database files (defaults to the current directory).
+    db_directory: Path to the directory containing SQL database files.
+                  Defaults to ./db (if it exists) or ./ (current working directory).
+    output_directory: Path where output files will be saved.
+                      Defaults to ./output (if it exists) or ./ (current working directory).
 """
 
 logger = setup_logger(__name__)
@@ -32,20 +35,23 @@ def main() -> None:
     """
     Main script for locating the latest SQL database file and exporting transaction data to CSV files.
     """
-    # Get database directory, default to the current directory if not provided
-    db_directory = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else os.getcwd()
+    # Get database and output directories from FileHandler
+    db_directory = FileHandler.get_db_directory(sys.argv)
+    output_directory = FileHandler.get_output_directory(sys.argv)
+
     logger.info(f"Looking for database files in: {db_directory}")
+    logger.info(f"Output files will be saved in: {output_directory}")
+
+    # Ensure the output directory exists
+    os.makedirs(output_directory, exist_ok=True)
 
     try:
         # Locate the latest 'cashew' SQL file in the directory
         latest_sql_file = FileHandler.find_latest_sql_file(db_directory)
         logger.info(f"Located latest '{DB_FILE_PREFIX}' '{DB_FILE_SUFFIX}' file: {latest_sql_file}")
 
-        # Output directory is the same as the database directory
-        output_dir = db_directory
-
         # Initialize and execute transaction export
-        exporter = TransactionExporter(latest_sql_file, output_dir)
+        exporter = TransactionExporter(latest_sql_file, output_directory)
         exporter.fetch_and_export()
 
     except FileNotFoundError as e:

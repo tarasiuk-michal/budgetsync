@@ -112,26 +112,29 @@ This directory contains unit tests for the core modules:
 Run the program using the following command:
 
 ```bash
-python main.py <db_directory>
+python main.py <db_directory> <output_directory>
 ```
 
 - `<db_directory>`: The path to the directory containing the database files. If absent, the application uses the current
   directory by default.
+- `<output_directory>`: The path to the directory where the CSV files will be saved. If not specified, defaults to the
+  database directory.
 
 ---
 
 ### Example:
 
-1. Assume your SQLite database files (`cashew_*.sql`) are in a folder called `/data/dbs/`.
+1. Assume your SQLite database files (`cashew_*.sql`) are in a folder called `/data/dbs/`, and you want the CSV files
+   saved to `/data/exports/`.
 2. Run this command:
 
    ```bash
-   python main.py /data/dbs/
+   python main.py /data/dbs/ /data/exports/
    ```
 
 3. The application will:
-    - Locate the most recent file with the prefix `cashew` and the `.sql` extension.
-    - Export the transaction data to the following CSV files in the same directory:
+    - Locate the most recent file with the prefix `cashew` and the `.sql` extension in `/data/dbs/`.
+    - Export the transaction data to the following CSV files in `/data/exports/`:
         - `transactions.csv`
         - `transactions_history_previous.csv`
         - `transactions_history.csv`

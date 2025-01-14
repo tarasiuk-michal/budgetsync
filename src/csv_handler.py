@@ -1,6 +1,6 @@
 import csv
 import os
-from _typeshed import SupportsWrite
+from _typeshed import SupportsWrite  # noqa: F401
 from typing import List
 
 from src.utils.error_handling import log_exceptions, CSVError
@@ -59,8 +59,7 @@ class CSVHandler(Logging):
         """Writes rows to a CSV file with the specified headers."""
         logger = CSVHandler.get_logger()
         try:
-            with open(os.path.abspath(file_path), 'w', encoding='utf-8',
-                      newline="") as file:  # type: SupportsWrite[str]
+            with open(os.path.abspath(file_path), 'w', encoding='utf-8', newline="") as file:
                 writer = csv.writer(file, delimiter=';')
                 writer.writerow(headers)  # Write headers
                 writer.writerows(rows)
