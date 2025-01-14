@@ -2,7 +2,8 @@ import csv
 import os
 import re
 from datetime import datetime
-from typing import TextIO, Optional
+from typing import Optional
+from typing import TextIO, Optional  # noqa: F401
 
 
 class FileHandler:
@@ -68,7 +69,7 @@ class FileHandler:
             if match:
                 try:
                     # Extract timestamp group captured by the regex
-                    return datetime.strptime(match.group(0), config.SQL_FILE_DATETIME_FORMAT)
+                    return datetime.strptime(match.group(), config.SQL_FILE_DATETIME_FORMAT)
                 except ValueError:
                     return None
             return None

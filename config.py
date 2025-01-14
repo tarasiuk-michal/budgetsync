@@ -32,7 +32,6 @@ SQL_FILE_NAME_REGEX = rf"^{DB_FILE_PREFIX}-db-v\d+-X\d+ \w+ \w+ \d+-\d+-\d+-\d+-
 SQL_FILE_DATETIME_REGEX = r"\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}-\d+Z"
 SQL_FILE_DATETIME_FORMAT = "%Y-%m-%d-%H-%M-%S-%fZ"
 
-
 # Constants for output CSV file naming
 NEW_TRANSACTION_FILE: str = "transactions.csv"
 TRANSACTION_HISTORY_FILE: str = "transactions_history.csv"
