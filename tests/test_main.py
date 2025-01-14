@@ -1,8 +1,8 @@
 import sys
 from unittest.mock import patch
 
-from src import config
-from src.main import main
+import config
+from main import main
 
 
 def test_main_script(mocker, test_db, test_csv):
