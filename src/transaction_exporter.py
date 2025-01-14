@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List, Tuple
 from zoneinfo import ZoneInfo
 
-from src import config
+import config
 from src.csv_handler import CSVHandler
 from src.db_handler import DBHandler
 from src.utils.error_handling import log_exceptions
@@ -32,11 +32,30 @@ class TransactionExporter(Logging):
 
     @log_exceptions(Logging.get_logger())
     def fetch_and_export(self) -> None:
-        """Fetches rows from the database, processes them, and writes them to three output CSV files."""
+        """Fetches rows from the database, processes them, and writes them to three output CSV files only if there are new transactions."""
         # Define file paths
         transactions_file = os.path.join(self.output_dir, f"{config.NEW_TRANSACTION_FILE}")
         history_file = os.path.join(self.output_dir, f"{config.TRANSACTION_HISTORY_FILE}")
         history_backup_file = os.path.join(self.output_dir, f"{config.PREVIOUS_TRANSACTION_HISTORY_FILE}")
+
+        # Fetch rows from the database
+        transactions = DBHandler.fetch_transactions(self.db_file, config.DATE_FILTER)
+
+        # Process rows
+        processed_data = self.process_rows(transactions)
+
+        # Check existing history file
+        if os.path.exists(history_file):
+            existing_data = CSVHandler.read_existing_csv(history_file)
+        else:
+            existing_data = []
+
+        # Identify new transactions
+        new_transactions = [row for row in processed_data if row not in existing_data]
+
+        if not new_transactions:
+            self.logger.info("No new transactions to process. Skipping file generation.")
+            return  # Stop further processing if no new data
 
         # Backup the existing history file as history_previous
         if os.path.exists(history_file):
@@ -45,32 +64,14 @@ class TransactionExporter(Logging):
             os.rename(history_file, history_backup_file)
             self.logger.info(f"Moved '{history_file}' to '{history_backup_file}'.")
 
-        # Fetch rows
-        transactions = DBHandler.fetch_transactions(self.db_file, config.DATE_FILTER)
-
-        # Process rows
-        processed_data = self.process_rows(transactions)
-
-        # Export all transactions to transactions.csv (new data only)
-        CSVHandler.write_to_csv(transactions_file, config.COLUMN_ORDER, processed_data)
+        # Export new transactions to transactions.csv
+        CSVHandler.write_to_csv(transactions_file, config.COLUMN_ORDER, new_transactions)
         self.logger.info(f"Exported all transactions to '{transactions_file}'.")
 
-        # Backup current transactions into history
-        if os.path.exists(history_file):
-            existing_data = CSVHandler.read_existing_csv(history_file)
-        else:
-            existing_data = []
-
-        # Filter new rows for history
-        new_transactions = [row for row in processed_data if row not in existing_data]
-
-        if new_transactions:
-            # Append to transactions_history.csv
-            updated_history_data = existing_data + new_transactions
-            CSVHandler.write_to_csv(history_file, config.COLUMN_ORDER, updated_history_data)
-            self.logger.info(f"Appended {len(new_transactions)} new transactions to '{history_file}'.")
-        else:
-            self.logger.info(f"No new transactions to append to '{history_file}'.")
+        # Append new transactions to history
+        updated_history_data = existing_data + new_transactions
+        CSVHandler.write_to_csv(history_file, config.COLUMN_ORDER, updated_history_data)
+        self.logger.info(f"Appended {len(new_transactions)} new transactions to '{history_file}'.")
 
     @log_exceptions(Logging.get_logger())
     def process_rows(self, rows: List[Tuple]) -> List[List[str]]:
