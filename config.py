@@ -48,7 +48,7 @@ COLUMN_MAPPING = {
     'transaction_pk': 'id',
     'name': 'opis',
     'amount': 'kwota',
-    'category_fk': 'kategoria',
+    'category_name': 'kategoria',
     'date_created': 'data',
 }
 

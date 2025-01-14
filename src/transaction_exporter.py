@@ -1,9 +1,9 @@
 import os
+import config
 from datetime import datetime
 from typing import List, Tuple
-from zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-import config
 from src.csv_handler import CSVHandler
 from src.db_handler import DBHandler
 from src.utils.error_handling import log_exceptions
@@ -94,7 +94,7 @@ class TransactionExporter(Logging):
             'id': row[0],
             'opis': row[1],
             'kwota': self.format_amount(row[2]),
-            'kategoria': self.map_category(row[3]),
+            'kategoria': row[3],
             'data': self.format_timestamp(row[4]),
         }
 
@@ -102,11 +102,16 @@ class TransactionExporter(Logging):
     def format_timestamp(unix_timestamp: int) -> str:
         """Formats the UNIX timestamp into a human-readable date using the configured timezone."""
         try:
-            local_tz = ZoneInfo(config.TIMEZONE)  # Use ZoneInfo instead of pytz
+            local_tz = ZoneInfo(config.TIMEZONE)
+
+            # Convert the timestamp to localized time
             localized_time = datetime.fromtimestamp(unix_timestamp, tz=local_tz)
             return localized_time.strftime("%d.%m.%Y")
-        except (ValueError, TypeError) as e:
-            Logging.get_logger().error(f"Error formatting timestamp {unix_timestamp}: {e}")
+        except (ZoneInfoNotFoundError, ValueError, TypeError) as e:
+            # Handle errors and provide fallback
+            Logging.get_logger().error(
+                f"Error formatting timestamp {unix_timestamp} with timezone '{config.TIMEZONE}': {e}"
+            )
             return str(unix_timestamp)
 
     @staticmethod

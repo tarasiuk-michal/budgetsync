@@ -19,9 +19,10 @@ Exceptions:
 """
 
 GET_TRANSACTIONS_QUERY = """
-                SELECT transaction_pk, name, amount, category_fk, date_created
-                FROM transactions
-                WHERE date_created > strftime('%s', ?)
+                SELECT t.transaction_pk, t.name, t.amount, c.name AS category_name, t.date_created
+                FROM transactions t
+                JOIN categories c ON t.category_fk = c.category_pk
+                WHERE t.date_created > strftime('%s', ?)
             """
 
 
