@@ -34,6 +34,7 @@ def log_exceptions(logger):
 
     def decorator(func):
         """A decorator function to add additional functionality to another function or method."""
+
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             """Wrapper function to handle exceptions."""

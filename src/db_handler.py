@@ -8,24 +8,42 @@ from src.utils.logger import Logging
 """
 db_handler.py
 
-This module provides functionality to interact with the database.
-It includes methods to connect to the database and fetch transaction data filtered by specific criteria.
+This module provides functionality for database interactions.
+It includes methods to connect to an SQLite database and retrieve transaction data based on specific criteria.
 
 Classes:
-    DBHandler: Handles database operations like fetching transactions.
+    DBHandler: Provides an interface for performing database queries.
 
 Exceptions:
-    DatabaseError: Custom exception raised for database operation errors.
+    DatabaseError: Raised when a database operation encounters an error.
 """
+
+GET_TRANSACTIONS_QUERY = """
+                SELECT transaction_pk, name, amount, category_fk, date_created
+                FROM transactions
+                WHERE date_created > strftime('%s', ?)
+            """
 
 
 class DBHandler(Logging):
-    """Handles database interactions."""
+    """
+    Handles database interactions for querying and retrieving data.
+
+    The DBHandler class provides methods to fetch transaction data from an SQLite
+    database, while ensuring proper error handling and logging during database operations.
+    """
 
     @staticmethod
     @log_exceptions(Logging.get_logger())
     def fetch_transactions(db_path: str, date_filter: str) -> List[Tuple]:
-        """Fetches transactions from the database filtered by date."""
+        """
+        Fetch transactions from the database that occur after a specified date.
+
+        :param db_path: A string representing the absolute path to the SQLite database file.
+        :param date_filter: A string representing the date filter in 'YYYY-MM-DD' format.
+        :return: A list of tuples, each representing a transaction's details.
+        :raises DatabaseError: If an operational error occurs during the database query.
+        """
         conn = None  # Initialize conn to None to ensure it is always defined
         db_path = os.path.abspath(db_path)  # Convert the path to an absolute path
         logger = DBHandler.get_logger()
@@ -33,12 +51,7 @@ class DBHandler(Logging):
         try:
             conn = sqlite3.connect(db_path)  # Try to create the database connection
             cursor = conn.cursor()
-            query = """
-                SELECT transaction_pk, name, amount, category_fk, date_created
-                FROM transactions
-                WHERE date_created > strftime('%s', ?)
-            """
-            cursor.execute(query, (date_filter,))
+            cursor.execute(GET_TRANSACTIONS_QUERY, (date_filter,))
             rows = cursor.fetchall()
             logger.info(f"Fetched {len(rows)} transactions.")
             return rows
