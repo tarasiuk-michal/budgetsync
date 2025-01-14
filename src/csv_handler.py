@@ -59,7 +59,8 @@ class CSVHandler(Logging):
         """Writes rows to a CSV file with the specified headers."""
         logger = CSVHandler.get_logger()
         try:
-            with open(os.path.abspath(file_path), 'w', encoding='utf-8', newline="") as file:
+            with open(os.path.abspath(file_path), 'w', encoding='utf-8',
+                      newline="") as file:  # type: SupportsWrite[str]
                 writer = csv.writer(file, delimiter=';')
                 writer.writerow(headers)  # Write headers
                 writer.writerows(rows)
