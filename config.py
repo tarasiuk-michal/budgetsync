@@ -12,7 +12,7 @@ Constants:
     - CATEGORY_MAPPING (dict): Maps category foreign keys (`category_fk`) to human-readable category labels for better interpretation.
     - DB_FILE_PREFIX (str): Prefix that database `.sql` files must start with to be identified during file processing.
     - DB_FILE_SUFFIX (str): File extension for database files (typically "sql") used in file filtering.
-    - SQL_FILE_REGEX (str): Regular expression pattern for matching database file names based on specific conventions.
+    - SQL_FILE_NAME_REGEX (str): Regular expression pattern for matching database file names based on specific conventions.
     - TIMEZONE (str): Specifies the timezone for accurate date and time processing in the exported transactions.
     - NEW_TRANSACTION_FILE (str): Name of the CSV file where new transaction data is exported.
     - TRANSACTION_HISTORY_FILE (str): Name of the file that consolidates historical transaction data across exports.

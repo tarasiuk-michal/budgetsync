@@ -1,4 +1,4 @@
-from src.csv_handler import CSVHandler
+from src.handlers.csv_handler import CSVHandler
 
 
 def test_read_existing_csv(test_csv):
@@ -13,11 +13,8 @@ def test_read_existing_csv(test_csv):
 
     # Call with correct static method signature
     data = CSVHandler.read_existing_csv(test_csv)
-
-    assert data == {
-        ('1', 'Groceries', '50,00', 'spożywcze', '01.01.2023'),
-        ('2', 'Bus Ticket', '2,50', 'transport', '02.01.2023'),
-    }
+    assert data == [['1', 'Groceries', '50,00', 'spożywcze', '01.01.2023'],
+                    ['2', 'Bus Ticket', '2,50', 'transport', '02.01.2023']]
 
 
 def test_write_to_csv(test_csv):
@@ -31,5 +28,5 @@ def test_write_to_csv(test_csv):
 
     with open(test_csv, 'r', encoding='utf-8') as f:
         lines = f.read().strip().split("\n")
-        assert lines[0] == ";".join(headers)
-        assert lines[1:] == [";".join(row) for row in rows]
+        assert lines[0] == "\t".join(headers)
+        assert lines[1:] == ["\t".join(row) for row in rows]
