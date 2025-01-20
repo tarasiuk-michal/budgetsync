@@ -3,6 +3,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import config
 from src.utils.logger import Logging
+from utils.enums import Categories
 
 
 class Formatter:
@@ -16,7 +17,7 @@ class Formatter:
 
             # Convert the timestamp to localized time
             localized_time = datetime.fromtimestamp(unix_timestamp, tz=local_tz)
-            return localized_time.strftime("%Y-%m-%d")
+            return localized_time.date().isoformat()
         except (ZoneInfoNotFoundError, ValueError, TypeError) as e:
             # Handle errors and provide fallback
             Logging.get_logger().error(
@@ -35,4 +36,4 @@ class Formatter:
     def map_category(category_name: str) -> str:
         """Maps category foreign keys to their corresponding names."""
         cat: str = category_name.lower()
-        return cat if cat in config.CATEGORIES else 'inne'
+        return cat if Categories.is_category(cat) else 'inne'

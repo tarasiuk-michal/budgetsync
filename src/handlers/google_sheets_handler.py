@@ -6,7 +6,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-from config import SERVICE_ACCOUNT_FILE
+from config import SERVICE_ACCOUNT_FILE, MY_DEFAULT_RANGE
 from src.utils.logger import Logging
 
 # Define the required Google API scope
@@ -103,30 +103,39 @@ class GoogleSheetsHandler(Logging):
             self.logger.exception("An error occurred while reading transactions: %s", error)
             return []
 
-    def append_transactions(self, range_name: str, transactions: List[List[str]]) -> None:
+    def append_transactions(self, transactions: List[List[str]], range_name: str = None) -> None:
         """
-        Appends transactions to the specified range.
-
+        Appends a list of transactions to the specified range in the Google Sheet.
+        
         Args:
-            range_name (str): Target range (e.g., "Sheet1!A1:D").
-            transactions (List[List[str]]): A list of data rows to append.
+            transactions (List[List[str]]): A list of rows, where each row represents a transaction to append.
+            range_name (str, optional): The target range in A1 notation (e.g., "Sheet1!A1:D").
+                                        If not provided, the first empty row will be determined automatically.
         """
         self.logger.info("Attempting to append %d rows to range: %s", len(transactions), range_name)
         self._authenticate_service()
+        if not range_name:  # Automatically find the range in case it's not provided.
+            range_name = self.find_first_empty_row()
+
+        # Ensure we're logging the inputs just before making the call
+        self.logger.info("Appending transactions: %s to range: %s", transactions, range_name)
+
         try:
             sheet = self.service.spreadsheets()
             body = {'values': transactions}
+
+            # Ensure arguments to append match expected structure
             sheet.values().append(
                 spreadsheetId=self.spreadsheet_id,
                 range=range_name,
-                valueInputOption='RAW',
+                valueInputOption="RAW",
                 body=body
             ).execute()
-            self.logger.info("Transactions successfully appended to range: %s", range_name)
+            self.logger.info("Successfully appended transactions to %s", range_name)
         except HttpError as error:
             self.logger.exception("An error occurred while appending transactions: %s", error)
 
-    def find_first_empty_row(self, range_name: str) -> str:
+    def find_first_empty_row(self, range_name: str = None) -> str:
         """
         Finds the first empty row in a given range and returns the new range in A1 notation.
 
@@ -138,9 +147,19 @@ class GoogleSheetsHandler(Logging):
         """
         self.logger.info("Attempting to find the first empty row in range: %s", range_name)
         self._authenticate_service()
+
+        if not range_name:
+            range_name = MY_DEFAULT_RANGE
+            self.logger.info("Range not provided. Using default range: %s", MY_DEFAULT_RANGE)
+        
         try:
-            # Split the range name into sheet and grid parts (e.g., "Sheet1!B10:G" -> Sheet1 and B10:G parts)
-            sheet_name, range_parts = range_name.split("!", maxsplit=1)
+            if '!' in range_name:
+                # Split the range name into sheet and grid parts (e.g., "Sheet1!B10:G" -> Sheet1 and B10:G parts)
+                sheet_name, range_parts = range_name.split("!", maxsplit=1)
+            else:
+                sheet_name = None
+                range_parts = range_name
+
             column_range = range_parts.split(":")  # Extract the column range (e.g., "B10:G" -> ["B10", "G"])
 
             # Get only the starting column and the row number from the first part of the range, e.g., B10 -> column=B, start_row=10
@@ -154,10 +173,13 @@ class GoogleSheetsHandler(Logging):
             # Determine the first empty row
             row_offset = len(values) + int(
                 start_row) - 1  # Add the number of rows already fetched to the starting row - 1
-            first_empty_row_range = f"{start_column}{row_offset + 1}:{column_range[1]}"
+            first_empty_row_range = f"{start_column}{row_offset + 1}:{column_range[1]}{row_offset + 1}"
 
             # Return the valid range in A1 notation
-            result_range = f"{sheet_name}!{first_empty_row_range}"
+            if sheet_name:
+                result_range = f"{sheet_name}!{first_empty_row_range}"
+            else:
+                result_range = f"{first_empty_row_range}"
             self.logger.info("First empty row range determined: %s", result_range)
             return result_range
         except HttpError as error:
