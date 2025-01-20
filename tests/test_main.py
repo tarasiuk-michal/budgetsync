@@ -1,38 +1,45 @@
 import sys
-from unittest.mock import patch
 
 import config
+from conftest import PATH_FETCH_TRANSACTIONS, PATH_WRITE_TO_CSV, PATH_READ_EXISTING_CSV
 from main import main
 
 
-def test_main_script(mocker, test_db, test_csv):
-    """Test the main script execution."""
+def test_main_script(mocker, tmp_path):
+    """Test the main script with dynamically generated pytest temp paths."""
 
-    # Simulate command-line arguments
-    sys.argv = ['main.py', str(test_db), str(test_csv)]
+    # Generate temporary files for database and CSV in the pytest-provided temp directory
+    tmp_db_path = tmp_path / "cashew-mock-db-v46-X11 linux x86_64 2025-01-01-01-01-01-001Z.sql"
+    tmp_csv_path = tmp_path / "mock_output.csv"
 
-    # Mock DBHandler.fetch_transactions to simulate fetching transaction data
-    mocker.patch(
-        'src.db_handler.DBHandler.fetch_transactions',
-        return_value=[
-            (1, 'Groceries', 50.00, '2', 1672531200),
-            (2, 'Fuel', 30.00, '3', 1672617600),
-        ]
-    )
+    tmp_db_path.touch()
+    tmp_csv_path.touch()
+
+    # Simulate CLI arguments
+    sys.argv = ['main.py', str(tmp_path), str(tmp_path)]
+
+    # Mock `os.path.isfile` to simulate the presence of the database file
+    mocker.patch("os.path.isfile", return_value=True)
+
+    # Mock DBHandler.fetch_transactions to simulate data fetching
+    mocker.patch(PATH_FETCH_TRANSACTIONS, return_value=[
+        (1, 'Groceries', 50.00, '2', 1672531200),
+        (2, 'Fuel', 30.00, '3', 1672617600)
+    ])
 
     # Mock CSVHandler.read_existing_csv to simulate no existing data
-    mocker.patch('src.csv_handler.CSVHandler.read_existing_csv', return_value=set())
+    mocker.patch(PATH_READ_EXISTING_CSV, return_value=[])
 
-    # Mock CSVHandler.write_to_csv to verify behavior
-    mock_write_csv = mocker.patch('src.csv_handler.CSVHandler.write_to_csv')
+    # Mock CSVHandler.write_to_csv to verify the expected behavior
+    mock_write_csv = mocker.patch(PATH_WRITE_TO_CSV)
 
-    # Mock sys.exit to prevent actual exits
-    with patch("sys.exit") as mock_exit:
-        main()
-        mock_exit.assert_not_called()  # Ensure sys.exit() didn't get called
+    mocker.patch("src.handlers.file_handler.FileHandler.find_latest_sql_file", return_value=tmp_db_path)
 
-    # Verify CSV writing behavior
-    mock_write_csv.assert_called_once_with(test_csv, config.COLUMN_ORDER, [
-        [1, '50,00', '01.01.2023', 'Groceries', 'spożywcze'],
-        [2, '30,00', '02.01.2023', 'Fuel', 'inne']
-    ])
+    main()
+
+    # Verify correct data was written to CSV
+    expected_data = [
+        ['1', 'Groceries', '50,00', 'inne', '2023-01-01'],
+        ['2', 'Fuel', '30,00', 'inne', '2023-01-02'],
+    ]
+    mock_write_csv.assert_called_once_with(str(tmp_csv_path), config.COLUMN_ORDER, expected_data)

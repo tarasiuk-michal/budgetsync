@@ -1,6 +1,7 @@
-pytest
 flake8
 mypy
+pytest
 pytest-cov
+pytest-mock
 pytz
 types-pytz

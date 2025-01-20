@@ -5,6 +5,8 @@ from datetime import datetime
 from typing import Optional
 from typing import TextIO  # noqa: F401
 
+from config import CSV_DELIMITER
+
 
 class FileHandler:
     """
@@ -23,8 +25,8 @@ class FileHandler:
         """
         try:
             # Use TextIO as the type for a file object when using context managers
-            with open(file_path, mode="w", newline="", encoding="utf-8") as csv_file:  # type: TextIO
-                writer = csv.writer(csv_file, delimiter=";", quoting=csv.QUOTE_MINIMAL)
+            with open(file_path, mode="w", newline="", encoding="utf-8") as csv_file:
+                writer = csv.writer(csv_file, delimiter=CSV_DELIMITER, quoting=csv.QUOTE_MINIMAL)
                 writer.writerows(rows)
         except Exception as e:
             raise IOError(f"Failed to write to file {file_path}: {e}")
@@ -40,7 +42,7 @@ class FileHandler:
         """
         import config  # Import config dynamically if not already imported
 
-        # Compile the SQL_FILE_REGEX from config.py
+        # Compile the SQL_FILE_NAME_REGEX from config.py
         sql_file_name_pattern = re.compile(config.SQL_FILE_NAME_REGEX)
 
         try:
@@ -49,7 +51,6 @@ class FileHandler:
                 os.path.join(directory, f) for f in os.listdir(directory)
                 if os.path.isfile(os.path.join(directory, f)) and sql_file_name_pattern.match(f)
             ]
-            print("files_in_directory: ", files_in_directory)
         except OSError as e:
             raise FileNotFoundError(f"Error accessing directory '{directory}': {e}")
 
@@ -96,7 +97,12 @@ class FileHandler:
         """
         # If the first CLI argument is provided, use it as the db_directory
         if len(cli_args) > 1:
-            return os.path.abspath(cli_args[1])
+            db_path = os.path.abspath(cli_args[1])
+            # Check if it's a file, as the db should be a file, not a directory
+            if os.path.isfile(db_path):
+                return db_path
+            else:
+                raise FileNotFoundError(f"Error: '{db_path}' is not a valid database file.")
         else:
             # Default: Look for ./db if it exists in working directory or fallback to ./
             working_dir = os.getcwd()
@@ -104,16 +110,18 @@ class FileHandler:
             return db_dir if os.path.exists(db_dir) else working_dir
 
     @staticmethod
-    def get_output_directory(cli_args) -> str:
+    def get_output_directory(cli_args: list[str]) -> str:
         """
         Determines the output directory.
 
         :param cli_args: The list of command-line arguments.
         :return: The path to the output directory.
         """
-        # If the second CLI argument is provided, use it as the output_directory
+        # If the second CLI argument is provided, ensure we use only the directory
         if len(cli_args) > 2:
-            return os.path.abspath(cli_args[2])
+            provided_path = os.path.abspath(cli_args[2])
+            # Extract directory if it is a file path
+            return os.path.dirname(provided_path) if os.path.isfile(provided_path) else provided_path
         else:
             working_dir = os.getcwd()
             # Default: Save files in ./output if it exists in working directory or fallback to ./

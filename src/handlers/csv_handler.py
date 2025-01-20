@@ -35,12 +35,12 @@ class CSVHandler(Logging):
         logger.debug(f"[{CSVHandler.__name__}] Entering read_existing_csv with file_path={file_path}")
 
         if not os.path.exists(file_path):
-            logger.info(f"[{CSVHandler.__name__}] {file_path} does not exist. Returning empty list.")
+            logger.warning(f"[{CSVHandler.__name__}] {file_path} does not exist. Returning empty list.")
             return []
 
         try:
             with open(os.path.abspath(file_path), encoding='utf-8') as file:
-                reader = csv.reader(file, delimiter=';')
+                reader = csv.reader(file, delimiter='\t')
                 next(reader, None)  # Skip the header
                 rows = [list(row) for row in reader]
                 logger.debug(f"Read {len(rows)} rows from {file_path}")
@@ -54,12 +54,44 @@ class CSVHandler(Logging):
 
     @staticmethod
     @log_exceptions(Logging.get_logger())
-    def write_to_csv(file_path: str, headers: List[str], rows: List[List[str]]) -> None:
+    def rewrite_csv(file_path: str, headers: List[str], rows: List[List[str]]) -> None:
+
+        """Rewrites rows to a CSV file with the specified headers."""
+        logger = CSVHandler.get_logger()
+        try:
+            with open(os.path.abspath(file_path), 'w', encoding='utf-8', newline="") as file:
+                writer = csv.writer(file, delimiter='\t')
+                writer.writerow(headers)  # Write headers
+                writer.writerows(rows)
+                logger.info(f"Wrote {len(rows)} rows to {os.path.abspath(file_path)}")
+        except Exception as e:
+            logger.error(f"Error writing to CSV at {os.path.abspath(file_path)}: {e}")
+            raise CSVError(f"Failed to write to CSV file: {file_path}")
+
+    @staticmethod
+    @log_exceptions(Logging.get_logger())
+    def append_to_csv(file_path: str, headers: List[str], rows: List[List[str]]) -> None:
+
+        """Appends rows to a CSV file with the specified headers."""
+        logger = CSVHandler.get_logger()
+        try:
+            with open(os.path.abspath(file_path), 'a', encoding='utf-8', newline="") as file:
+                writer = csv.writer(file, delimiter='\t')
+                writer.writerow(headers)  # Write headers
+                writer.writerows(rows)
+                logger.info(f"Wrote {len(rows)} rows to {os.path.abspath(file_path)}")
+        except Exception as e:
+            logger.error(f"Error writing to CSV at {os.path.abspath(file_path)}: {e}")
+            raise CSVError(f"Failed to write to CSV file: {file_path}")
+
+    @staticmethod
+    @log_exceptions(Logging.get_logger())
+    def write_to_csv(file_path: str, headers: List[str], rows: List[List[str]], mode: str = 'w') -> None:
 
         """Writes rows to a CSV file with the specified headers."""
         logger = CSVHandler.get_logger()
         try:
-            with open(os.path.abspath(file_path), 'w', encoding='utf-8', newline="") as file:  # type: TextIO
+            with open(os.path.abspath(file_path), mode, encoding='utf-8', newline="") as file:
                 writer = csv.writer(file, delimiter='\t')
                 writer.writerow(headers)  # Write headers
                 writer.writerows(rows)

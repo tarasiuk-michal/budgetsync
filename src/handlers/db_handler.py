@@ -1,6 +1,6 @@
 import os
 import sqlite3
-from typing import List, Tuple
+from typing import List
 
 from src.utils.error_handling import log_exceptions, DatabaseError
 from src.utils.logger import Logging
@@ -36,7 +36,7 @@ class DBHandler(Logging):
 
     @staticmethod
     @log_exceptions(Logging.get_logger())
-    def fetch_transactions(db_path: str, date_filter: str) -> List[Tuple]:
+    def fetch_transactions(db_path: str, date_filter: str) -> List[List[str]]:
         """
         Fetch transactions from the database that occur after a specified date.
 

@@ -2,7 +2,7 @@ import os
 import sys
 
 from config import DB_FILE_PREFIX, DB_FILE_SUFFIX
-from src.file_handler import FileHandler
+from src.handlers.file_handler import FileHandler
 from src.transaction_exporter import TransactionExporter
 from src.utils.logger import setup_logger
 
