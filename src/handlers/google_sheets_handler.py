@@ -125,3 +125,56 @@ class GoogleSheetsHandler(Logging):
             self.logger.info("Transactions successfully appended to range: %s", range_name)
         except HttpError as error:
             self.logger.exception("An error occurred while appending transactions: %s", error)
+
+    def find_first_empty_row(self, range_name: str) -> str:
+        """
+        Finds the first empty row in a given range and returns the new range in A1 notation.
+
+        Args:
+            range_name (str): Range in A1 notation (e.g., "Sheet1!B10:G").
+
+        Returns:
+            str: The range in A1 notation for the first empty row (e.g., "B25:G25").
+        """
+        self.logger.info("Attempting to find the first empty row in range: %s", range_name)
+        self._authenticate_service()
+        try:
+            # Split the range name into sheet and grid parts (e.g., "Sheet1!B10:G" -> Sheet1 and B10:G parts)
+            sheet_name, range_parts = range_name.split("!", maxsplit=1)
+            column_range = range_parts.split(":")  # Extract the column range (e.g., "B10:G" -> ["B10", "G"])
+
+            # Get only the starting column and the row number from the first part of the range, e.g., B10 -> column=B, start_row=10
+            start_column, start_row = self._extract_column_and_row(column_range[0])
+
+            # Fetch data from the range
+            sheet = self.service.spreadsheets()
+            result = sheet.values().get(spreadsheetId=self.spreadsheet_id, range=range_name).execute()
+            values = result.get('values', [])
+
+            # Determine the first empty row
+            row_offset = len(values) + int(
+                start_row) - 1  # Add the number of rows already fetched to the starting row - 1
+            first_empty_row_range = f"{start_column}{row_offset + 1}:{column_range[1]}"
+
+            # Return the valid range in A1 notation
+            result_range = f"{sheet_name}!{first_empty_row_range}"
+            self.logger.info("First empty row range determined: %s", result_range)
+            return result_range
+        except HttpError as error:
+            self.logger.exception("An error occurred while finding the first empty row: %s", error)
+            raise
+
+    @staticmethod
+    def _extract_column_and_row(cell_reference: str) -> tuple:
+        """
+        Extracts the column and row from a cell reference (e.g., "B10").
+
+        Args:
+            cell_reference (str): The cell reference string (e.g., "B10").
+
+        Returns:
+            tuple: A tuple containing the column as a string and the row as an integer (e.g., ("B", 10)).
+        """
+        column = ''.join(char for char in cell_reference if char.isalpha())
+        row = ''.join(char for char in cell_reference if char.isdigit())
+        return column, int(row) if row else 1
