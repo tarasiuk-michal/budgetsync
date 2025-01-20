@@ -22,6 +22,9 @@ Usage:
     Import this module to access configuration constants for database interaction,
     file handling, naming conventions, and transaction exporting tasks.
 """
+import logging
+
+LOG_LEVEL = logging.INFO
 
 # Constants for file lookup
 DB_FILE_PREFIX: str = "cashew"  # Prefix for database `.sql` files
@@ -31,6 +34,9 @@ DB_FILE_SUFFIX: str = "sql"  # Suffix for database files
 SQL_FILE_NAME_REGEX = rf"^{DB_FILE_PREFIX}-db-v\d+-X\d+ \w+ \w+ \d+-\d+-\d+-\d+-\d+-\d+-\d+Z\.{DB_FILE_SUFFIX}$"
 SQL_FILE_DATETIME_REGEX = r"\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}-\d+Z"
 SQL_FILE_DATETIME_FORMAT = "%Y-%m-%d-%H-%M-%S-%fZ"
+
+# Delimiter used while reading and writing CSV files
+CSV_DELIMITER = "\t"
 
 # Constants for output CSV file naming
 NEW_TRANSACTION_FILE: str = "transactions.csv"
@@ -56,4 +62,4 @@ COLUMN_MAPPING = {
 COLUMN_ORDER = ['id', 'opis', 'kwota', 'kategoria', 'data']
 
 # List of category names
-CATEGORIES = ['spożywcze', 'transport', 'przyjemności', 'inne']
+CATEGORIES = ['spożywcze', 'transport', 'przyjemności', 'inne', 'rachunki']

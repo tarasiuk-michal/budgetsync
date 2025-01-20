@@ -33,6 +33,8 @@ def test_main_script(mocker, tmp_path):
     # Mock CSVHandler.write_to_csv to verify the expected behavior
     mock_write_csv = mocker.patch(PATH_WRITE_TO_CSV)
 
+    mocker.patch("src.handlers.file_handler.FileHandler.find_latest_sql_file", return_value=tmp_db_path)
+
     main()
 
     # Verify correct data was written to CSV

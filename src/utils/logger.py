@@ -1,5 +1,7 @@
 import logging
 
+from config import LOG_LEVEL
+
 """
 logger.py
 
@@ -10,9 +12,9 @@ Functionality:
     - Writes log messages to console or log files.
 """
 
-LOGGING_LEVEL = logging.DEBUG
-LOGGING_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-LOGGING_DATEFMT = '%H:%M:%S'
+LOGGING_LEVEL = LOG_LEVEL
+LOGGING_FORMAT = '%(asctime)s\t%(levelname)s\t%(name)s\t%(message)s'
+LOGGING_DATE_FORMAT = '%H:%M:%S'
 
 
 def setup_logger(class_name: str) -> logging.Logger:
@@ -25,7 +27,7 @@ def setup_logger(class_name: str) -> logging.Logger:
         stream_handler = logging.StreamHandler()
 
         # Set the log format and level
-        formatter = logging.Formatter(fmt=LOGGING_FORMAT, datefmt=LOGGING_DATEFMT)
+        formatter = logging.Formatter(fmt=LOGGING_FORMAT, datefmt=LOGGING_DATE_FORMAT)
         stream_handler.setFormatter(formatter)
         stream_handler.setLevel(LOGGING_LEVEL)
 

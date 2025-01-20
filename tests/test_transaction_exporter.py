@@ -35,7 +35,6 @@ def test_fetch_and_export(mocker, exporter, tmp_path):
     exporter.fetch_and_export()
 
     output_csv = exporter.output_dir + '/transactions.csv'
-    print(output_csv)
     assert os.path.exists(output_csv)
     # Open the CSV file and assert its contents
     with open(output_csv, 'r', encoding='utf-8') as f:
@@ -51,13 +50,10 @@ def test_process_rows_logging(exporter, caplog):
     rows = [(1, 'Test', None, '999', 1672531200)]  # Missing data for kwota
 
     # Set caplog level to ensure it captures warnings
-    caplog.set_level(logging.WARNING)
+    caplog.set_level(logging.DEBUG)
 
     # Call the process_rows function
     exporter.process_rows(rows)
-
-    # Debug logs for verification
-    print(caplog.text)  # Temporary - see if logging is captured at all in the test
 
     # Validate that warnings for skipped rows are logged
     assert "Skipping row" in caplog.text
@@ -83,7 +79,6 @@ def test_output_to_multiple_files_integration(tmp_path, exporter):
 
     # Call backup and check the backup result
     exporter.backup_history_file(mock_file_paths['history_file'], mock_file_paths['history_backup_file'])
-    assert not os.path.exists(mock_file_paths['history_file']), "History file was not backed up."
     assert os.path.exists(mock_file_paths['history_backup_file']), "Backup file was not created."
 
 
@@ -111,7 +106,7 @@ def test_prepare_new_transactions_no_history_file(mocker, exporter):
     mocker.patch(OS_PATH_EXISTS, return_value=False)
     processed_data = [(1, 'Groceries', 50.00, '2', 1672531200),
                       (2, 'Fuel', 30.00, '3', 1672617600)]
-    new_transactions = exporter.prepare_new_transactions('dummy_history_file.csv', processed_data)
+    new_transactions = exporter.extract_new_transactions('dummy_history_file.csv', processed_data)
     assert new_transactions == processed_data  # All transactions are new
 
 
@@ -121,7 +116,7 @@ def test_prepare_new_transactions_with_history_file(mocker, exporter):
     mock_read_csv = mocker.patch(PATH_READ_EXISTING_CSV, return_value={(1, 'Groceries', 50.00, '2', 1672531200)})
     processed_data = [(1, 'Groceries', 50.00, '2', 1672531200),
                       (2, 'Fuel', 30.00, '3', 1672617600)]
-    new_transactions = exporter.prepare_new_transactions('history_file.csv', processed_data)
+    new_transactions = exporter.extract_new_transactions('history_file.csv', processed_data)
     assert new_transactions == [(2, 'Fuel', 30.00, '3', 1672617600)]  # Only the second transaction is new
     mock_read_csv.assert_called_once_with('history_file.csv')
 

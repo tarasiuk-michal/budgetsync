@@ -27,6 +27,8 @@ class Formatter:
     @staticmethod
     def format_amount(amount: float) -> str:
         """Formats the amount with a comma as the decimal separator."""
+        if amount is None:
+            raise ValueError("Amount cannot be None")
         return "{:,.2f}".format(float(amount)).replace('.', ',')
 
     @staticmethod

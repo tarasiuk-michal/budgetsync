@@ -5,6 +5,8 @@ from datetime import datetime
 from typing import Optional
 from typing import TextIO  # noqa: F401
 
+from config import CSV_DELIMITER
+
 
 class FileHandler:
     """
@@ -24,7 +26,7 @@ class FileHandler:
         try:
             # Use TextIO as the type for a file object when using context managers
             with open(file_path, mode="w", newline="", encoding="utf-8") as csv_file:
-                writer = csv.writer(csv_file, delimiter=";", quoting=csv.QUOTE_MINIMAL)
+                writer = csv.writer(csv_file, delimiter=CSV_DELIMITER, quoting=csv.QUOTE_MINIMAL)
                 writer.writerows(rows)
         except Exception as e:
             raise IOError(f"Failed to write to file {file_path}: {e}")
@@ -49,7 +51,6 @@ class FileHandler:
                 os.path.join(directory, f) for f in os.listdir(directory)
                 if os.path.isfile(os.path.join(directory, f)) and sql_file_name_pattern.match(f)
             ]
-            print("files_in_directory: ", files_in_directory)
         except OSError as e:
             raise FileNotFoundError(f"Error accessing directory '{directory}': {e}")
 
