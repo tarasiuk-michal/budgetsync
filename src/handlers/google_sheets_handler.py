@@ -1,10 +1,12 @@
 import os
 from typing import List
 
-from google.oauth2.credentials import Credentials
+from google.oauth2.service_account import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+
+from config import SERVICE_ACCOUNT_FILE
 
 # If modifying these SCOPES, delete the token.json file
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
@@ -18,6 +20,39 @@ class GoogleSheetsHandler:
         self.token_file = token_file
         self.spreadsheet_id = spreadsheet_id
         self.service = self._authenticate()
+
+    @staticmethod
+    def setup_google_sheets_service():
+        """
+           Authenticate and initialize Google Sheets API service.
+           """
+        # Authenticate using the service account JSON
+        credentials = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+
+        # Build the Sheets API service
+        service = build("sheets", "v4", credentials=credentials)
+        return service
+
+    @staticmethod
+    def read_google_sheets(sheet_id, range_name):
+        """
+           Read data from a Google Sheet.
+           """
+        service = GoogleSheetsHandler.setup_google_sheets_service()
+        sheet = service.spreadsheets()
+
+        # Read data from the provided range
+        result = sheet.values().get(spreadsheetId=sheet_id, range=range_name).execute()
+        values = result.get("values", [])
+
+        if not values:
+            print("No data found.")
+        else:
+            print("Data retrieved from Google Sheets:")
+            for row in values:
+                print(row)
+
+        return values
 
     def _authenticate(self):
         """Authenticate and return the Google Sheets API service."""

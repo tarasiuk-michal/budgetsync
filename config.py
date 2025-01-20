@@ -63,3 +63,11 @@ COLUMN_ORDER = ['id', 'opis', 'kwota', 'kategoria', 'data']
 
 # List of category names
 CATEGORIES = ['spożywcze', 'transport', 'przyjemności', 'inne', 'rachunki']
+
+# Allow these scopes for the app
+WYDATKI_FILE_ID = '1Cqed7-_t6TFt1V6PPuM6hCFzcUAYZQ7Zg_FnotHfdTQ'
+GOOGLE_API_USE_SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+MY_SPREADSHEET_ID = WYDATKI_FILE_ID
+MY_SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/" + MY_SPREADSHEET_ID + "/edit"
+# Path to your service account key file
+SERVICE_ACCOUNT_FILE = "credentials.json"  # File downloaded from Google Cloud Console

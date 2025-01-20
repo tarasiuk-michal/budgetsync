@@ -1,9 +1,9 @@
 import os
 import sys
 
-from config import DB_FILE_PREFIX, DB_FILE_SUFFIX
+from config import MY_SPREADSHEET_ID
+from handlers.google_sheets_handler import GoogleSheetsHandler
 from src.handlers.file_handler import FileHandler
-from src.transaction_exporter import TransactionExporter
 from src.utils.logger import setup_logger
 
 """
@@ -52,21 +52,24 @@ def main() -> None:
     # Ensure the output directory exists
     os.makedirs(output_directory, exist_ok=True)
 
-    try:
-        # Locate the latest 'cashew' SQL file in the directory
-        latest_sql_file = FileHandler.find_latest_sql_file(db_directory)
-        logger.info(f"Located latest '{DB_FILE_PREFIX}' '{DB_FILE_SUFFIX}' file: {latest_sql_file}")
+    # try:
+    #     # Locate the latest 'cashew' SQL file in the directory
+    #     latest_sql_file = FileHandler.find_latest_sql_file(db_directory)
+    #     logger.info(f"Located latest '{DB_FILE_PREFIX}' '{DB_FILE_SUFFIX}' file: {latest_sql_file}")
+    #
+    #     # Initialize and execute transaction export
+    #     exporter = TransactionExporter(latest_sql_file, output_directory)
+    #     exporter.fetch_and_export()
+    #
+    # except FileNotFoundError as e:
+    #     logger.error(f"File not found: {e}")
+    #     sys.exit(1)
+    # except Exception as e:
+    #     logger.error(f"An unexpected error occurred: {e}")
+    #     sys.exit(1)
 
-        # Initialize and execute transaction export
-        exporter = TransactionExporter(latest_sql_file, output_directory)
-        exporter.fetch_and_export()
-
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"An unexpected error occurred: {e}")
-        sys.exit(1)
+    # Read the data and print it
+    GoogleSheetsHandler.read_google_sheets(MY_SPREADSHEET_ID, "A60:G")
 
 
 if __name__ == "__main__":
