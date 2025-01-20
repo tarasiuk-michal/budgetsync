@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Optional
 
 from google.oauth2.service_account import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -7,122 +7,121 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 from config import SERVICE_ACCOUNT_FILE
+from src.utils.logger import Logging
 
-# If modifying these SCOPES, delete the token.json file
+# Define the required Google API scope
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
 
-class GoogleSheetsHandler:
-    """Handles interactions with Google Sheets API."""
+class GoogleSheetsHandler(Logging):
+    """Handles interactions with the Google Sheets API."""
 
-    def __init__(self, credentials_file: str, token_file: str, spreadsheet_id: str):
+    def __init__(self, spreadsheet_id: str, credentials_file: Optional[str] = None, token_file: Optional[str] = None):
+        """
+        Initialize the Google Sheets handler.
+
+        Args:
+            spreadsheet_id (str): The ID of the Google Spreadsheet to interact with.
+            credentials_file (Optional[str]): Path to the client_secret.json file (for Installed App Flow).
+            token_file (Optional[str]): Path to the token.json file for caching user credentials.
+        """
+        self.spreadsheet_id = spreadsheet_id
         self.credentials_file = credentials_file
         self.token_file = token_file
-        self.spreadsheet_id = spreadsheet_id
-        self.service = self._authenticate()
+        self.service = None  # Cached instance of the Google Sheets API service
+        self.logger.info("GoogleSheetsHandler initialized with Spreadsheet ID: %s", spreadsheet_id)
 
-    @staticmethod
-    def setup_google_sheets_service():
-        """
-           Authenticate and initialize Google Sheets API service.
-           """
-        # Authenticate using the service account JSON
-        credentials = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+    def _authenticate_service(self) -> None:
+        """Authenticate with Google Sheets API and initialize the service."""
+        if self.service is not None:
+            self.logger.debug("Google Sheets API service is already authenticated and initialized.")
+            return
 
-        # Build the Sheets API service
-        service = build("sheets", "v4", credentials=credentials)
-        return service
+        try:
+            if os.path.exists(SERVICE_ACCOUNT_FILE):
+                self.logger.info("Authenticating with Service Account file: %s", SERVICE_ACCOUNT_FILE)
+                credentials = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+            elif self.credentials_file and os.path.exists(self.credentials_file):
+                self.logger.warning(
+                    "Service account file not found. Fallback to Installed App Flow with credentials file: %s",
+                    self.credentials_file)
+                credentials = self._authenticate_with_installed_app_flow()
+            else:
+                self.logger.error("No valid credentials file found for authentication.")
+                raise FileNotFoundError("No valid credentials file found for authentication.")
 
-    @staticmethod
-    def read_google_sheets(sheet_id, range_name):
-        """
-           Read data from a Google Sheet.
-           """
-        service = GoogleSheetsHandler.setup_google_sheets_service()
-        sheet = service.spreadsheets()
+            self.service = build('sheets', 'v4', credentials=credentials)
+            self.logger.info("Google Sheets API service successfully authenticated and initialized.")
+        except Exception as error:
+            self.logger.exception("Failed to authenticate and initialize Google Sheets API service: %s", error)
+            raise
 
-        # Read data from the provided range
-        result = sheet.values().get(spreadsheetId=sheet_id, range=range_name).execute()
-        values = result.get("values", [])
+    def _authenticate_with_installed_app_flow(self):
+        """Authenticate using Installed App Flow and cache credentials."""
+        if not self.credentials_file:
+            self.logger.error("A credentials file is required for Installed App Flow but not provided.")
+            raise ValueError("A credentials file is required for Installed App Flow.")
 
-        if not values:
-            print("No data found.")
-        else:
-            print("Data retrieved from Google Sheets:")
-            for row in values:
-                print(row)
-
-        return values
-
-    def _authenticate(self):
-        """Authenticate and return the Google Sheets API service."""
         creds = None
-        # Load existing credentials
-        if os.path.exists(self.token_file):
+        if self.token_file and os.path.exists(self.token_file):
+            self.logger.info("Loading credentials from token file: %s", self.token_file)
             creds = Credentials.from_authorized_user_file(self.token_file, SCOPES)
-        # If no valid credentials are available, authorize the user
+
         if not creds or not creds.valid:
+            self.logger.info("No valid credentials found. Initiating Installed App Flow.")
             flow = InstalledAppFlow.from_client_secrets_file(self.credentials_file, SCOPES)
             creds = flow.run_local_server(port=0)
-            # Save the credentials for future use
-            with open(self.token_file, 'w') as token:
-                token.write(creds.to_json())
-        return build('sheets', 'v4', credentials=creds)
+            if self.token_file:
+                with open(self.token_file, 'w') as token:
+                    token.write(creds.to_json())
+                self.logger.info("Credentials have been saved to the token file: %s", self.token_file)
+
+        return creds
 
     def read_transactions(self, range_name: str) -> List[List[str]]:
         """
-        Read transactions from the specified range.
-        
+        Reads transactions from the specified cell range.
+
         Args:
-            range_name (str): The range of cells to read (e.g., "Sheet1!A1:D").
-        
+            range_name (str): Range in A1 notation (e.g., "Sheet1!A1:D").
+
         Returns:
             List[List[str]]: A list of rows, where each row is a list of cell values.
         """
+        self.logger.info("Attempting to read transactions from range: %s", range_name)
+        self._authenticate_service()
         try:
             sheet = self.service.spreadsheets()
             result = sheet.values().get(spreadsheetId=self.spreadsheet_id, range=range_name).execute()
-            return result.get('values', [])
+            values = result.get('values', [])
+            if not values:
+                self.logger.warning("No data found in the range: %s", range_name)
+            else:
+                self.logger.info("Read %d rows of data from range: %s", len(values), range_name)
+            return values
         except HttpError as error:
-            print(f"An error occurred: {error}")
+            self.logger.exception("An error occurred while reading transactions: %s", error)
             return []
 
     def append_transactions(self, range_name: str, transactions: List[List[str]]) -> None:
         """
-        Append new transactions to the sheet.
-        
+        Appends transactions to the specified range.
+
         Args:
-            range_name (str): The target range for appending data (e.g., "Sheet1!A1:D").
-            transactions (List[List[str]]): A list of rows to append to the sheet.
+            range_name (str): Target range (e.g., "Sheet1!A1:D").
+            transactions (List[List[str]]): A list of data rows to append.
         """
+        self.logger.info("Attempting to append %d rows to range: %s", len(transactions), range_name)
+        self._authenticate_service()
         try:
             sheet = self.service.spreadsheets()
-            body = {
-                'values': transactions
-            }
+            body = {'values': transactions}
             sheet.values().append(
                 spreadsheetId=self.spreadsheet_id,
                 range=range_name,
                 valueInputOption='RAW',
                 body=body
             ).execute()
-            print("Transactions successfully appended.")
+            self.logger.info("Transactions successfully appended to range: %s", range_name)
         except HttpError as error:
-            print(f"An error occurred: {error}")
-
-    def find_transaction(self, range_name: str, transaction_id: str) -> List[str]:
-        """
-        Search for a transaction in the sheet by transaction ID.
-        
-        Args:
-            range_name (str): The range of cells to search within (e.g., "Sheet1!A1:D").
-            transaction_id (str): The ID of the transaction to search for.
-        
-        Returns:
-            List[str]: The matching row, or an empty list if not found.
-        """
-        transactions = self.read_transactions(range_name)
-        for row in transactions:
-            if row and row[0] == transaction_id:  # Assuming transaction IDs are in the first column
-                return row
-        return []
+            self.logger.exception("An error occurred while appending transactions: %s", error)

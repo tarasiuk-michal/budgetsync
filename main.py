@@ -69,7 +69,8 @@ def main() -> None:
     #     sys.exit(1)
 
     # Read the data and print it
-    GoogleSheetsHandler.read_google_sheets(MY_SPREADSHEET_ID, "A60:G")
+    g_handler = GoogleSheetsHandler(MY_SPREADSHEET_ID)
+    g_handler.read_transactions("A60:G")
 
 
 if __name__ == "__main__":
