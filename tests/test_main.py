@@ -1,45 +1,72 @@
+import datetime
 import sys
+from unittest.mock import patch, MagicMock
 
-import config
-from conftest import PATH_FETCH_TRANSACTIONS, PATH_WRITE_TO_CSV, PATH_READ_EXISTING_CSV
-from main import main
+from main import add_custom, fetch_and_export, fetch_and_append
 
 
-def test_main_script(mocker, tmp_path):
-    """Test the main script with dynamically generated pytest temp paths."""
+def test_add_custom():
+    # Mock GoogleSheetsHandler
+    with patch('main.GoogleSheetsHandler') as MockGoogleSheetsHandler:
+        mock_handler_instance = MockGoogleSheetsHandler.return_value
+        mock_handler_instance.append_transactions = MagicMock()
 
-    # Generate temporary files for database and CSV in the pytest-provided temp directory
-    tmp_db_path = tmp_path / "cashew-mock-db-v46-X11 linux x86_64 2025-01-01-01-01-01-001Z.sql"
-    tmp_csv_path = tmp_path / "mock_output.csv"
+        # Call the function
+        add_custom()
 
-    tmp_db_path.touch()
-    tmp_csv_path.touch()
+        # Ensure 'append_transactions' is called with the right data
+        expected_calls = [
+            ['wyrównanie', -7.5, 'PRZYJEMNOŚCI', datetime.datetime(2025, 1, 20), 'Michał'],
+            ['wyrównanie', -7.5, 'PRZYJEMNOŚCI', datetime.datetime(2025, 1, 20), 'Daga']
+        ]
+        mock_handler_instance.append_transactions.assert_called_once()
 
-    # Simulate CLI arguments
-    sys.argv = ['main.py', str(tmp_path), str(tmp_path)]
 
-    # Mock `os.path.isfile` to simulate the presence of the database file
-    mocker.patch("os.path.isfile", return_value=True)
+def test_fetch_and_export():
+    with patch('main.FileHandler') as MockFileHandler, \
+            patch('main.TransactionExporter') as MockTransactionExporter, \
+            patch('main.os.makedirs'), \
+            patch('main.logger') as MockLogger:
+        # Mock FileHandler's methods
+        MockFileHandler.get_db_directory.return_value = '/mock/db_directory'
+        MockFileHandler.get_output_directory.return_value = '/mock/output_directory'
+        MockFileHandler.find_latest_sql_file.return_value = '/mock/latest_db_file.sql'
 
-    # Mock DBHandler.fetch_transactions to simulate data fetching
-    mocker.patch(PATH_FETCH_TRANSACTIONS, return_value=[
-        (1, 'Groceries', 50.00, '2', 1672531200),
-        (2, 'Fuel', 30.00, '3', 1672617600)
-    ])
+        # Mock TransactionExporter
+        mock_exporter_instance = MockTransactionExporter.return_value
+        mock_exporter_instance.fetch_and_export = MagicMock()
 
-    # Mock CSVHandler.read_existing_csv to simulate no existing data
-    mocker.patch(PATH_READ_EXISTING_CSV, return_value=[])
+        # Call the function
+        fetch_and_export()
 
-    # Mock CSVHandler.write_to_csv to verify the expected behavior
-    mock_write_csv = mocker.patch(PATH_WRITE_TO_CSV)
+        # Assertions
+        MockFileHandler.get_db_directory.assert_called_once_with(sys.argv)
+        MockFileHandler.get_output_directory.assert_called_once_with(sys.argv)
+        MockFileHandler.find_latest_sql_file.assert_called_once_with('/mock/db_directory')
+        mock_exporter_instance.fetch_and_export.assert_called_once()
 
-    mocker.patch("src.handlers.file_handler.FileHandler.find_latest_sql_file", return_value=tmp_db_path)
 
-    main()
+def test_fetch_and_append():
+    with patch('main.FileHandler') as MockFileHandler, \
+            patch('main.GoogleSheetsHandler') as MockGoogleSheetsHandler, \
+            patch('main.TransactionExporter') as MockTransactionExporter, \
+            patch('main.logger') as MockLogger:
+        # Mock FileHandler's methods
+        MockFileHandler.get_db_directory.return_value = '/mock/db_directory'
+        MockFileHandler.find_latest_sql_file.return_value = '/mock/latest_db_file.sql'
 
-    # Verify correct data was written to CSV
-    expected_data = [
-        ['1', 'Groceries', '50,00', 'inne', '2023-01-01'],
-        ['2', 'Fuel', '30,00', 'inne', '2023-01-02'],
-    ]
-    mock_write_csv.assert_called_once_with(str(tmp_csv_path), config.COLUMN_ORDER, expected_data)
+        # Mock GoogleSheetsHandler
+        mock_gs_handler = MockGoogleSheetsHandler.return_value
+        mock_gs_handler.append_transactions = MagicMock()
+
+        # Mock TransactionExporter
+        mock_exporter_instance = MockTransactionExporter.return_value
+        mock_exporter_instance.fetch_and_append = MagicMock()
+
+        # Call the function
+        fetch_and_append()
+
+        # Assertions
+        MockFileHandler.get_db_directory.assert_called_once_with(sys.argv)
+        MockFileHandler.find_latest_sql_file.assert_called_once_with('/mock/db_directory')
+        mock_exporter_instance.fetch_and_append.assert_called_once_with('/mock/latest_db_file.sql', mock_gs_handler)

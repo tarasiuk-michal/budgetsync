@@ -154,7 +154,7 @@ class GoogleSheetsHandler(Logging):
         if not range_name:
             range_name = MY_DEFAULT_RANGE
             self.logger.info("Range not provided. Using default range: %s", MY_DEFAULT_RANGE)
-        
+
         try:
             if '!' in range_name:
                 # Split the range name into sheet and grid parts (e.g., "Sheet1!B10:G" -> Sheet1 and B10:G parts)

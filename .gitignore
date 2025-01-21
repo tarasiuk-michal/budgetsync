@@ -8,3 +8,5 @@
 /deps.txt
 /workdir/
 /logs/
+/credentials.json
+/tests/logs/

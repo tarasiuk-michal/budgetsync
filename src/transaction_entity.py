@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from utils.fomatter import Formatter
+from src.utils.fomatter import Formatter
 
 
 class TransactionEntity:
@@ -20,8 +20,8 @@ class TransactionEntity:
         """
         Initializes a Transaction object with the given parameters.
         """
-        self.id: str = _id
-        self.description: str = description
+        self.id: str = str(_id)
+        self.description: str = str(description)
         self.amount: str = Formatter.format_amount(amount)
         self.category: str = Formatter.map_category(category)
         self.date: str = date.date().isoformat()

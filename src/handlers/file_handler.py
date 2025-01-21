@@ -6,7 +6,7 @@ from typing import Optional
 from typing import TextIO  # noqa: F401
 
 from config import CSV_DELIMITER
-from utils.logger import Logging
+from src.utils.logger import Logging
 
 
 class FileHandler:

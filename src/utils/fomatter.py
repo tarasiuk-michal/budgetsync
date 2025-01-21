@@ -2,8 +2,8 @@ from datetime import datetime
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import config
+from src.utils.enums import Categories
 from src.utils.logger import Logging
-from utils.enums import Categories
 
 
 class Formatter:
@@ -30,7 +30,7 @@ class Formatter:
         """Formats the amount with a comma as the decimal separator."""
         if amount is None:
             raise ValueError("Amount cannot be None")
-        return "{:,.2f}".format(float(amount)).replace('.', ',')
+        return f"{amount:.2f}".replace(".", ",")
 
     @staticmethod
     def map_category(category_name: str) -> str:

@@ -3,9 +3,9 @@ import shutil
 from typing import List, Tuple
 
 import config
-from handlers.google_sheets_handler import GoogleSheetsHandler
 from src.handlers.csv_handler import CSVHandler
 from src.handlers.db_handler import DBHandler
+from src.handlers.google_sheets_handler import GoogleSheetsHandler
 from src.utils.error_handling import log_exceptions
 from src.utils.fomatter import Formatter
 from src.utils.logger import Logging
@@ -99,7 +99,7 @@ class TransactionExporter(Logging):
         }
 
     @staticmethod
-    def extract_new_transactions(history_file: str, transactions: list[list[str]]) -> list[Tuple]:
+    def extract_new_transactions(history_file: str, transactions: list[Tuple]) -> list[Tuple]:
         """Filters and identifies new transactions."""
 
         historic_data = CSVHandler.read_existing_csv(history_file) if os.path.exists(history_file) else []
@@ -150,8 +150,8 @@ class TransactionExporter(Logging):
         """Maps a database row (tuple) to a dictionary for CSV export."""
         try:
             formed = {
-                'id': row[0],
-                'opis': row[1],
+                'id': str(row[0]),
+                'opis': str(row[1]),
                 'kwota': Formatter.format_amount(row[2]),
                 'kategoria': Formatter.map_category(row[3]),
                 'data': Formatter.format_timestamp(row[4]),

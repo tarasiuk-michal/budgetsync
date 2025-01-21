@@ -24,7 +24,7 @@ Usage:
 """
 import logging
 
-from utils.enums import Categories
+from src.utils.enums import Categories
 
 LOG_LEVEL = logging.INFO
 
