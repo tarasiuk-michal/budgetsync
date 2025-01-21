@@ -6,6 +6,7 @@ from typing import Optional
 from typing import TextIO  # noqa: F401
 
 from config import CSV_DELIMITER
+from utils.logger import Logging
 
 
 class FileHandler:
@@ -95,19 +96,39 @@ class FileHandler:
         :param cli_args: The list of command-line arguments.
         :return: The path to the database directory.
         """
+        # Assuming an existing logger is available for use
+        logger = Logging.get_logger()
+
+        logger.debug(f"CLI args: {cli_args}")
+        # Default: Look for db dir in current location ./db, ./workdir, and ./workdir/db
         # If the first CLI argument is provided, use it as the db_directory
         if len(cli_args) > 1:
             db_path = os.path.abspath(cli_args[1])
             # Check if it's a file, as the db should be a file, not a directory
             if os.path.isfile(db_path):
                 return db_path
-            else:
-                raise FileNotFoundError(f"Error: '{db_path}' is not a valid database file.")
         else:
-            # Default: Look for ./db if it exists in working directory or fallback to ./
-            working_dir = os.getcwd()
-            db_dir = os.path.join(working_dir, "db")
-            return db_dir if os.path.exists(db_dir) else working_dir
+            current_dir = os.getcwd()
+
+            # Absolute paths for each potential location
+            db_in_current = os.path.join(current_dir, "db")  # ./db
+            workdir = os.path.join(current_dir, "workdir")  # ./workdir
+            db_in_workdir = os.path.join(workdir, "db")  # ./workdir/db
+
+            # Debug logs for the locations being checked
+            logger.debug(f"Checking if './db' exists at {db_in_current}")
+            if os.path.exists(db_in_current):
+                logger.debug(f"Found './db' at {db_in_current}. Using it.")
+                return db_in_current
+
+            logger.debug(f"Checking if './workdir/db' exists at {db_in_workdir}")
+            if os.path.exists(db_in_workdir):
+                logger.debug(f"Found './workdir/db' at {db_in_workdir}. Using it.")
+                return db_in_workdir
+
+            # Fallback to the current directory with a debug log
+            logger.debug(f"No suitable 'db' directory found. Falling back to current directory: {current_dir}")
+            return current_dir
 
     @staticmethod
     def get_output_directory(cli_args: list[str]) -> str:

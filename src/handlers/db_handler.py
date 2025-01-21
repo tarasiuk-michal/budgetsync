@@ -36,7 +36,7 @@ class DBHandler(Logging):
 
     @staticmethod
     @log_exceptions(Logging.get_logger())
-    def fetch_transactions(db_path: str, date_filter: str) -> List[List[str]]:
+    def fetch_transactions(db_path: str, date_filter: str) -> List[tuple]:
         """
         Fetch transactions from the database that occur after a specified date.
 

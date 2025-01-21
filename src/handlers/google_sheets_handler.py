@@ -78,7 +78,7 @@ class GoogleSheetsHandler(Logging):
 
         return creds
 
-    def read_transactions(self, range_name: str) -> List[List[str]]:
+    def read_transactions(self, range_name: str = None) -> List[List[str]]:
         """
         Reads transactions from the specified cell range.
 
@@ -92,6 +92,9 @@ class GoogleSheetsHandler(Logging):
         self._authenticate_service()
         try:
             sheet = self.service.spreadsheets()
+            if range_name is None:
+                range_name = MY_DEFAULT_RANGE
+                self.logger.info("Range not provided. Using default range: %s", MY_DEFAULT_RANGE)
             result = sheet.values().get(spreadsheetId=self.spreadsheet_id, range=range_name).execute()
             values = result.get('values', [])
             if not values:

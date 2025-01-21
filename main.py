@@ -54,14 +54,9 @@ def main() -> None:
     Main script for locating the latest SQL database file and exporting transaction data to CSV files.
     """
     # Get database and output directories from FileHandler
+    # logger.debug(sys.argv)
     db_directory = FileHandler.get_db_directory(sys.argv)
-    output_directory = FileHandler.get_output_directory(sys.argv)
-
     logger.info(f"Looking for database files in: {db_directory}")
-    logger.info(f"Output files will be saved in: {output_directory}")
-
-    # Ensure the output directory exists
-    os.makedirs(output_directory, exist_ok=True)
 
     try:
         # Locate the latest 'cashew' SQL file in the directory
@@ -69,7 +64,7 @@ def main() -> None:
         logger.info(f"Located latest '{DB_FILE_PREFIX}' '{DB_FILE_SUFFIX}' file: {latest_sql_file}")
 
         # Initialize and execute transaction export
-        exporter = TransactionExporter(latest_sql_file, output_directory)
+        exporter = TransactionExporter(latest_sql_file)
         g_handler = GoogleSheetsHandler(MY_SPREADSHEET_ID)
         exporter.fetch_and_append(latest_sql_file, g_handler)
         # exporter.fetch_and_export()
