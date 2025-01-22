@@ -15,6 +15,9 @@ class FileHandler:
     or writing to files and locating specific files based on patterns.
     """
 
+    def __init__(self):
+        pass
+
     @staticmethod
     def write_to_file(file_path: str, rows: list[list[str]]) -> None:
         """
@@ -106,7 +109,12 @@ class FileHandler:
             db_path = os.path.abspath(cli_args[1])
             # Check if it's a file, as the db should be a file, not a directory
             if os.path.isfile(db_path):
+                logger.debug(f"Using provided DB file: {db_path}")
                 return db_path
+            else:
+                logger.error(f"Provided DB path is not a valid file: {db_path}")
+                return ''
+
         else:
             current_dir = os.getcwd()
 

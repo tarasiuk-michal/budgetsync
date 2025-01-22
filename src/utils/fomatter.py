@@ -9,6 +9,9 @@ from src.utils.logger import Logging
 class Formatter:
     """A utility class for formatting-related operations."""
 
+    def __init__(self):
+        pass
+
     @staticmethod
     def format_timestamp(unix_timestamp: int) -> str:
         """Formats the UNIX timestamp into a human-readable date using the configured timezone."""

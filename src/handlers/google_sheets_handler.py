@@ -1,7 +1,7 @@
 import os
 from typing import List, Optional
 
-from google.oauth2.service_account import Credentials
+from google.oauth2.service_account import Credentials  # pragma: no cover
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -25,6 +25,7 @@ class GoogleSheetsHandler(Logging):
             credentials_file (Optional[str]): Path to the client_secret.json file (for Installed App Flow).
             token_file (Optional[str]): Path to the token.json file for caching user credentials.
         """
+        super().__init__()
         self.spreadsheet_id = spreadsheet_id
         self.credentials_file = credentials_file
         self.token_file = token_file
@@ -78,7 +79,7 @@ class GoogleSheetsHandler(Logging):
 
         return creds
 
-    def read_transactions(self, range_name: str = None) -> List[List[str]]:
+    def read_transactions(self, range_name: Optional[str] = None) -> List[List[str]]:
         """
         Reads transactions from the specified cell range.
 
@@ -88,9 +89,11 @@ class GoogleSheetsHandler(Logging):
         Returns:
             List[List[str]]: A list of rows, where each row is a list of cell values.
         """
-        self.logger.info("Attempting to read transactions from range: %s", range_name)
-        self._authenticate_service()
         try:
+            self.logger.info("Attempting to read transactions from range: %s", range_name)
+            self._authenticate_service()
+            if not self.service:
+                raise RuntimeError("Google Sheets API service is not initialized correctly.")
             sheet = self.service.spreadsheets()
             if range_name is None:
                 range_name = MY_DEFAULT_RANGE
@@ -106,10 +109,10 @@ class GoogleSheetsHandler(Logging):
             self.logger.exception("An error occurred while reading transactions: %s", error)
             return []
 
-    def append_transactions(self, transactions: List[List[str]], range_name: str = None) -> None:
+    def append_transactions(self, transactions: List[List[str]], range_name: Optional[str] = None) -> None:
         """
         Appends a list of transactions to the specified range in the Google Sheet.
-        
+
         Args:
             transactions (List[List[str]]): A list of rows, where each row represents a transaction to append.
             range_name (str, optional): The target range in A1 notation (e.g., "Sheet1!A1:D").
@@ -117,6 +120,8 @@ class GoogleSheetsHandler(Logging):
         """
         self.logger.info("Attempting to append %d rows to range: %s", len(transactions), range_name)
         self._authenticate_service()
+        if not self.service:
+            raise RuntimeError("Google Sheets API service is not initialized correctly.")
         if not range_name:  # Automatically find the range in case it's not provided.
             range_name = self.find_first_empty_row()
 
@@ -138,7 +143,7 @@ class GoogleSheetsHandler(Logging):
         except HttpError as error:
             self.logger.exception("An error occurred while appending transactions: %s", error)
 
-    def find_first_empty_row(self, range_name: str = None) -> str:
+    def find_first_empty_row(self, range_name: Optional[str] = None) -> str:
         """
         Finds the first empty row in a given range and returns the new range in A1 notation.
 
@@ -150,6 +155,8 @@ class GoogleSheetsHandler(Logging):
         """
         self.logger.info("Attempting to find the first empty row in range: %s", range_name)
         self._authenticate_service()
+        if not self.service:
+            raise RuntimeError("Google Sheets API service is not initialized correctly.")
 
         if not range_name:
             range_name = MY_DEFAULT_RANGE
