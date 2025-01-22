@@ -33,20 +33,20 @@ jobs:
       # Step 3: Run tests
       - name: Run tests
         run: |
-          pytest --cov=. --cov-report term-missing || exit 1  # Replace with the test framework or command for your project
+          pytest --cov=. --cov-report=html || exit 1  # Replace with the test framework or command for your project
 
       # Step 4: Run Qodana analysis
       - name: 'Qodana Scan'
-        uses: JetBrains/qodana-action@v2024.2
+        uses: JetBrains/qodana-action@v2024.3.4
         with:
           pr-mode: false
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN_1667823880 }}
           QODANA_ENDPOINT: 'https://qodana.cloud'
 
-      # Step 5: Publish Qodana report (optional)
+      #      # Step 5: Publish Qodana report (optional)
       - name: Upload Qodana Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4.6.0
         with:
-          name: qodana-results
-          path: qodana-results/
+          name: coverage-report
+          path: htmlcov/   # Directory where the coverage HTML report is generated
