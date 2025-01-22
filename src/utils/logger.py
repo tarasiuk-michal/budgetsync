@@ -44,6 +44,9 @@ def setup_logger(class_name: str) -> logging.Logger:
 class Logging:
     """Mixin to add a logger to a class."""
 
+    def __init__(self):
+        pass
+
     @classmethod
     def get_logger(cls) -> logging.Logger:
         """Returns a logger specific to the calling class."""

@@ -1,10 +1,9 @@
 version: "1.0"
-linter: jetbrains/qodana-python:2024.2
+linter: jetbrains/qodana-python:2024.3
 profile:
   name: qodana.recommended
 include:
   - name: CheckDependencyLicenses
-  - name: PyMissingOrEmptyDocstringInspection
   - name: PyMissingTypeHintsInspection
   - name: PyUnresolvedReferencesInspection
   - name: PyArgumentEqualDefaultInspection

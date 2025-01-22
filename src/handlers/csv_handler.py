@@ -27,6 +27,9 @@ Usage:
 class CSVHandler(Logging):
     """Handles CSV operations."""
 
+    def __init__(self):
+        super().__init__()
+
     @staticmethod
     @log_exceptions(Logging.get_logger())
     def read_existing_csv(file_path: str) -> List[List[str]]:

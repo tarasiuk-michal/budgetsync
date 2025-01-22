@@ -4,7 +4,9 @@ import sys
 
 import pytest
 
+from src.handlers.google_sheets_handler import GoogleSheetsHandler  # pragma: no cover
 from src.transaction_exporter import TransactionExporter
+from test_google_sheets_handler import SPREADSHEET_ID
 
 TEST_ROWS = [(1, 'Groceries', 50.00, 'spożywcze', 1672531200), (2, 'Fuel', 30.00, 'transport', 1672617600)]
 INVALID_TEST_ROWS = [(1, 'Groceries', 50.00, 'spożywcze', 1672531200), (4, 'Unknown', 25.00, '999', 1672790400)]
@@ -97,3 +99,9 @@ def exporter(test_db, test_csv, tmp_path):
     # Ensure `test_csv` points to a location in the temporary pytest folder
     output_csv = os.path.abspath(str(tmp_path / "test.csv"))  # Convert to absolute path
     return TransactionExporter(test_db, output_csv)
+
+
+@pytest.fixture
+def g_handler():
+    """Fixture to initialize the GoogleSheetsHandler with a mocked environment."""
+    return GoogleSheetsHandler(SPREADSHEET_ID)
