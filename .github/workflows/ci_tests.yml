@@ -54,4 +54,3 @@ jobs:
           pytest-xml-coverage-path: ./coverage_report.xml
           junitxml-title: "Summary"
           junitxml-path: ./coverage_junit.xml
-          default-branch: "master"
