@@ -41,17 +41,17 @@ jobs:
       # Step 5: Run tests
       - name: Run tests
         run: |
-          pytest --junitxml=coverage_junit.xml --cov-report=xml --cov=. | tee coverage_summary.txt
+          pytest --junitxml=coverage_junit.xml --cov-report=xml:coverage_report.xml --cov=./src | tee coverage_summary.txt
       # Step 6: Publish coverage
       - name: Publish coverage
         uses: MishaKav/pytest-coverage-comment@main
         with:
-          title: My Coverage Report Title
-          badge-title: My Badge Coverage Title
+          title: Detailed Report
+          badge-title: Total Coverage
           hide-badge: false
           hide-report: false
           pytest-coverage-path: ./coverage_summary.txt
-          pytest-xml-coverage-path: ./coverage.xml
+          pytest-xml-coverage-path: ./coverage_report.xml
           junitxml-title: "Summary"
           junitxml-path: ./coverage_junit.xml
           default-branch: "master"
