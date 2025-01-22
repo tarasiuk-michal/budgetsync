@@ -1,15 +1,15 @@
 import os
 import shutil
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 import config
 from src.handlers.csv_handler import CSVHandler
 from src.handlers.db_handler import DBHandler
 from src.handlers.google_sheets_handler import GoogleSheetsHandler
+from src.transaction_entity import TransactionEntity
 from src.utils.error_handling import log_exceptions
 from src.utils.fomatter import Formatter
 from src.utils.logger import Logging
-from transaction_entity import TransactionEntity
 
 """
 transaction_exporter.py
@@ -28,7 +28,7 @@ Functionality:
 class TransactionExporter(Logging):
     """Handles the process of exporting transactions."""
 
-    def __init__(self, db_file: str, output_dir=None):
+    def __init__(self, db_file: str, output_dir: Optional[str] = None):
         self.db_file = os.path.abspath(db_file)
         if output_dir is not None:
             self.output_dir = os.path.abspath(output_dir)
@@ -36,7 +36,8 @@ class TransactionExporter(Logging):
     from typing import List
 
     @log_exceptions(Logging.get_logger())
-    def fetch_and_append(self, db_file: str, sheet_handler: GoogleSheetsHandler, sheet_range: str = None) -> None:
+    def fetch_and_append(self, db_file: str, sheet_handler: GoogleSheetsHandler,
+                         sheet_range: Optional[str] = None) -> None:
         """
         Fetch transactions from the database, filter new ones by comparing with existing rows from the Google Sheet,
         and append only the new transactions to the sheet.

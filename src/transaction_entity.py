@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from src.utils.fomatter import Formatter
 
@@ -16,7 +17,8 @@ class TransactionEntity:
         who (str): The person or entity associated with the transaction.
     """
 
-    def __init__(self, _id: str, description: str, amount: float, category: str, date: datetime, who: str = None):
+    def __init__(self, _id: str, description: str, amount: float, category: str, date: datetime,
+                 who: Optional[str] = None):
         """
         Initializes a Transaction object with the given parameters.
         """
@@ -25,20 +27,18 @@ class TransactionEntity:
         self.amount: str = Formatter.format_amount(amount)
         self.category: str = Formatter.map_category(category)
         self.date: str = date.date().isoformat()
-        self.who: str = who
+        self.who: str | None = who
 
     def to_list(self) -> list[str]:
         """
         Returns the transaction details as a list of strings.
         """
-        return [
-            self.id,
-            self.description,
-            self.amount,
-            Formatter.map_category(self.category),
-            self.date,
-            self.who,
-        ]
+        res = [self.id, self.description, self.amount, Formatter.map_category(self.category), self.date]
+
+        if self.who:
+            res.append(self.who)
+
+        return res
 
     @classmethod
     def from_db_row(cls, row: tuple) -> "TransactionEntity":
@@ -51,16 +51,37 @@ class TransactionEntity:
         Returns:
             TransactionEntity: The mapped TransactionEntity object.
         """
-        date = None
-        if isinstance(row[4], str):
-            date = datetime.fromisoformat(row[4])
-        elif isinstance(row[4], int) or isinstance(row[4], float):
-            date = datetime.fromtimestamp(row[4])
+        # Extract data using descriptive variable names
+        transaction_id, description, amount_str, category, date_field = row[:5]
 
         return cls(
-            _id=row[0],  # ID of the transaction
-            description=row[1],  # Description of the transaction
-            amount=float(row[2]),  # Transaction amount
-            category=row[3],  # Transaction category
-            date=date  # Transaction date
+            _id=str(transaction_id),
+            description=str(description),
+            amount=float(amount_str),
+            category=str(category),
+            date=cls._parse_date(date_field)
         )
+
+    @staticmethod
+    def _parse_date(date_field) -> datetime:
+        """
+        Parses a date field and converts it to a datetime object.
+
+        Args:
+            date_field (str | int | float): The date field to parse.
+
+        Returns:
+            datetime: Parsed datetime object.
+
+        Raises:
+            ValueError: If the date field is of an unsupported format or type.
+        """
+        if isinstance(date_field, str):
+            try:
+                return datetime.fromisoformat(date_field)  # ISO 8601 format
+            except ValueError as e:
+                raise ValueError(f"Invalid string format for date: {date_field}") from e
+        elif isinstance(date_field, (int, float)):
+            return datetime.fromtimestamp(date_field)  # UNIX timestamp
+        else:
+            raise ValueError(f"Unsupported date type: {type(date_field)}", date_field)
