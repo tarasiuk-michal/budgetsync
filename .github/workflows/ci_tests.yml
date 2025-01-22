@@ -5,6 +5,7 @@ on:
     branches:
       - main              # Specify the branch to run the workflow on
   pull_request:           # Also trigger on pull requests
+  workflow_dispatch:
 
 jobs:
   test-and-analyze:
@@ -13,13 +14,16 @@ jobs:
     steps:
       # Step 1: Checkout code
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}  # to check out the actual pull request commit, not the merge commit
+          fetch-depth: 0  # a full history is required for pull request analysis
 
       # Step 2: Set up your environment (Python example)
-      - name: Set up Python 3.11
+      - name: Set up Python 3.10
         uses: actions/setup-python@v3
         with:
-          python-version: "3.11"
+          python-version: "3.10"
 
       # Install dependencies required for running tests
       - name: Install dependencies
@@ -29,15 +33,16 @@ jobs:
       # Step 3: Run tests
       - name: Run tests
         run: |
-          pytest || exit 1  # Replace with the test framework or command for your project
+          pytest --cov=. --cov-report term-missing || exit 1  # Replace with the test framework or command for your project
 
       # Step 4: Run Qodana analysis
-      - name: Run Qodana
-        uses: JetBrains/qodana-action@v2023.2
+      - name: 'Qodana Scan'
+        uses: JetBrains/qodana-action@v2024.2
         with:
-          project-dir: "." # Path to your project root
-          results-dir: "qodana-results"
-          linter: "jetbrains/qodana-python" # Replace `qodana-python` depending on your project tech stack
+          pr-mode: false
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN_1667823880 }}
+          QODANA_ENDPOINT: 'https://qodana.cloud'
 
       # Step 5: Publish Qodana report (optional)
       - name: Upload Qodana Report
