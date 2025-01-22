@@ -6,5 +6,6 @@ pytest-mock
 pytz
 types-pytz
 protobuf~=5.29.3
+google
 google-api-python-client~=2.159.0
 google-auth-oauthlib~=1.2.1

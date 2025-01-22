@@ -10,3 +10,10 @@
 /logs/
 /credentials.json
 /tests/logs/
+/htmlcov/
+/lib/
+/.coverage
+/Pipfile.lock
+/Pipfile
+/credentials.json
+/.coverage

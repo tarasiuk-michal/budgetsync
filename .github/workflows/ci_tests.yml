@@ -1,0 +1,47 @@
+name: Test and Qodana Analysis
+
+on:
+  push: # Trigger on pushes to the repo
+    branches:
+      - main              # Specify the branch to run the workflow on
+  pull_request:           # Also trigger on pull requests
+
+jobs:
+  test-and-analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Step 2: Set up your environment (Python example)
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.11"
+
+      # Install dependencies required for running tests
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      # Step 3: Run tests
+      - name: Run tests
+        run: |
+          pytest || exit 1  # Replace with the test framework or command for your project
+
+      # Step 4: Run Qodana analysis
+      - name: Run Qodana
+        uses: JetBrains/qodana-action@v2023.2
+        with:
+          project-dir: "." # Path to your project root
+          results-dir: "qodana-results"
+          linter: "jetbrains/qodana-python" # Replace `qodana-python` depending on your project tech stack
+
+      # Step 5: Publish Qodana report (optional)
+      - name: Upload Qodana Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: qodana-results
+          path: qodana-results/
