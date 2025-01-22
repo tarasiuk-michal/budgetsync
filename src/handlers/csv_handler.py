@@ -28,7 +28,7 @@ class CSVHandler(Logging):
     """Handles CSV operations."""
 
     def __init__(self):
-        pass
+        super().__init__()
 
     @staticmethod
     @log_exceptions(Logging.get_logger())

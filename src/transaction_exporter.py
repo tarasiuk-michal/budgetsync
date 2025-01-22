@@ -29,6 +29,7 @@ class TransactionExporter(Logging):
     """Handles the process of exporting transactions."""
 
     def __init__(self, db_file: str, output_dir: Optional[str] = None):
+        super().__init__()
         self.db_file = os.path.abspath(db_file)
         if output_dir is not None:
             self.output_dir = os.path.abspath(output_dir)
