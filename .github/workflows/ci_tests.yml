@@ -30,24 +30,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-      # Step 4: Run tests
-      - name: Run tests
-        run: |
-          pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov=app tests/ | tee pytest-coverage.txt
-
-      - name: Publish coverage
-        uses: MishaKav/pytest-coverage-comment@main
-        with:
-          pytest-coverage-path: ./pytest-coverage.txt
-          junitxml-path: ./pytest.xml
-      #      # Step 5: Publish Qodana report (optional)
-      #      - name: Upload Qodana Report
-      #        uses: actions/upload-artifact@v4.6.0
-      #        with:
-      #          name: coverage-report
-      #          path: htmlcov/   # Directory where the coverage HTML report is generated
-
-      # Step 5: Run Qodana analysis
+      # Step 4: Run Qodana analysis
       - name: 'Qodana Scan'
         uses: JetBrains/qodana-action@v2024.3.4
         with:
@@ -55,3 +38,20 @@ jobs:
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN_1667823880 }}
           QODANA_ENDPOINT: 'https://qodana.cloud'
+      # Step 5: Run tests
+      - name: Run tests
+        run: |
+          pytest --junitxml=coverage_junit.xml --cov-report=xml --cov=. | tee coverage_summary.txt
+      # Step 6: Publish coverage
+      - name: Publish coverage
+        uses: MishaKav/pytest-coverage-comment@main
+        with:
+          title: My Coverage Report Title
+          badge-title: My Badge Coverage Title
+          hide-badge: false
+          hide-report: false
+          pytest-coverage-path: ./coverage_summary.txt
+          pytest-xml-coverage-path: ./coverage.xml
+          junitxml-title: "Summary"
+          junitxml-path: ./coverage_junit.xml
+          default-branch: "master"
