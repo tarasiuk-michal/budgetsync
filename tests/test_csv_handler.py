@@ -1,3 +1,5 @@
+from unittest.mock import patch, mock_open
+
 from config import CSV_DELIMITER
 from src.handlers.csv_handler import CSVHandler
 
@@ -31,3 +33,11 @@ def test_write_to_csv(test_csv):
         lines = f.read().strip().split("\n")
         assert lines[0] == CSV_DELIMITER.join(headers)
         assert lines[1:] == [CSV_DELIMITER.join(row) for row in rows]
+
+
+@patch('builtins.open', new_callable=mock_open)
+def test_append_to_csv(mock_file):
+    CSVHandler.append_to_csv("test.csv", ["col1", "col2"], [["data1", "data2"]])
+
+    # Validate appending rows
+    mock_file().write.assert_any_call("data1\tdata2\r\n")

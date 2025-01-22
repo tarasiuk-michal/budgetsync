@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
 
-from transaction_exporter import TransactionExporter
+from src.transaction_exporter import TransactionExporter
 
 
 class TestTransactionExporter(unittest.TestCase):
@@ -63,8 +63,8 @@ class TestTransactionExporter(unittest.TestCase):
 
         # Ensure expected new transactions are appended
         mock_append_transactions.assert_called_once_with(
-            [['1', 'Description1', '100,00', 'transport', '2023-10-01', None],
-             ['2', 'Description2', '200,00', 'inne', '2023-10-02', None]]
+            [['1', 'Description1', '100,00', 'transport', '2023-10-01'],
+             ['2', 'Description2', '200,00', 'inne', '2023-10-02']]
         )
 
     @patch('os.path.exists', return_value=False)

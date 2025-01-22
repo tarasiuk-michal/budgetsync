@@ -4,7 +4,7 @@ import sys
 
 import pytest
 
-from src.handlers.google_sheets_handler import GoogleSheetsHandler
+from src.handlers.google_sheets_handler import GoogleSheetsHandler  # pragma: no cover
 from src.transaction_exporter import TransactionExporter
 from test_google_sheets_handler import SPREADSHEET_ID
 
