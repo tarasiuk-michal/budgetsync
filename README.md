@@ -1,8 +1,8 @@
-# Budget sync
+# Budget Sync
 
-A Python-based application that facilitates the export of transaction data from SQLite database files into CSV format.
-This tool automates the process of locating and working with the latest database files and generating transaction
-reports.
+A Python-based application to process and synchronize transaction data. This tool provides functionality for exporting
+transaction data from SQLite database files into CSV files or directly appending them to a Google Sheets document. It
+automates locating the latest database files, processing transaction data, and generating output in a structured format.
 
 ---
 
@@ -21,11 +21,14 @@ reports.
 
 - Automatically identifies the most recent SQLite database file in the provided directory based on predefined naming
   conventions.
-- Exports transaction data into standardized CSV files, including:
-    - **`transactions.csv`**: Contains the latest exported transactions.
-    - **`transactions_history_previous.csv`**: A backup of the prior transaction history for safekeeping.
-    - **`transactions_history.csv`**: A combined file containing both old and new transaction data.
-- Includes robust logging to track errors and application flow.
+- Two primary modes of operation:
+    - **Google Sheets Sync**: Appends filtered transactions directly to a Google Sheet.
+    - **CSV Export** *(optional)*:
+        - **`transactions.csv`**: Stores newly exported transactions.
+        - **`transactions_history_previous.csv`**: A backup of prior transaction history for safekeeping.
+        - **`transactions_history.csv`**: A combined file containing both old and new transaction data.
+- Custom transaction creation and addition to Google Sheets (predefined examples available).
+- Includes robust logging for tracking errors and the application's flow.
 
 ---
 
@@ -35,16 +38,21 @@ reports.
 .
 ├── main.py                        <-- Main entry point of the application
 ├── src/
-│   ├── file_handler.py            <-- Handles file-related operations, such as finding the latest SQL file
-│   ├── db_handler.py              <-- Manages database-specific operations (e.g. validating and querying databases)
-│   ├── transaction_exporter.py    <-- Contains the main logic for exporting transactions to CSV files
+│   ├── handlers/
+│   │   ├── file_handler.py        <-- Handles file-related operations like finding the latest database file
+│   │   ├── db_handler.py          <-- Manages database operations (e.g., data validation and SQL queries)
+│   │   ├── google_sheets_handler.py <-- Handles interactions with Google Sheets API
+│   ├── transaction_entity.py      <-- Transaction model for storing and processing transaction data
+│   ├── transaction_exporter.py    <-- Contains logic for exporting transactions to CSV or Google Sheets
 │   ├── utils/
-│   │   ├── logger.py              <-- Provides logging functionality for the application
-│   │   └── csv_utils.py           <-- Additional helper functions for handling and manipulating CSV data
+│   │   ├── logger.py              <-- Provides centralized logging functionality
+│   │   ├── csv_utils.py           <-- Utility functions for processing and manipulating CSV data
+│   │   ├── formatter.py           <-- Formats transaction data (e.g., timestamps, amounts, and categories)
+│   │   └── error_handling.py      <-- Decorators for logging and handling exceptions
 ├── tests/
-│   ├── test_file_handler.py       <-- Unit tests for file handling functions (e.g., locating database files)
-│   ├── test_transaction_exporter.py <-- Unit tests for the transaction export functionality
-│   └── test_db_handler.py         <-- Unit tests for database operation functions
+│   ├── test_file_handler.py       <-- Unit tests for `file_handler.py`
+│   ├── test_transaction_exporter.py <-- Unit tests for transaction export functionality
+│   └── test_db_handler.py         <-- Unit tests for `db_handler.py`
 ├── README.md                      <-- Documentation for the project (this file)
 ├── requirements.txt               <-- List of required Python packages
 └── LICENSE                        <-- Licensing information
@@ -56,52 +64,48 @@ reports.
 
 #### **Top-Level Files**
 
-- `main.py`: This is the main entry point script of the application. It handles:
-    - Parsing and validating command-line arguments.
-    - Locating the most recent database file with specific naming conventions.
-    - Instantiating the transaction export and invoking the logic defined in the core scripts.
+1. **`main.py`**:  
+   Main entry point of the application. Its primary responsibilities include:
+    - Parsing command-line arguments.
+    - Locating the most recent database file based on naming conventions.
+    - Exporting transaction data to Google Sheets or generating local CSV files.
+    - Includes optional functionality for adding predefined custom transactions.
 
-- `README.md`: Provides a detailed overview of the project, including setup, usage, and documentation.
+2. **`README.md`**:  
+   Documentation describing the purpose, setup, and usage of the application.
 
-- `requirements.txt`: Contains a list of external libraries or dependencies required by the application (e.g., `SQLite`,
-  `logging`, `pandas`, etc.).
+3. **`requirements.txt`**:  
+   List of required Python libraries (e.g., `Google Sheets API`, `SQLite`, etc.).
 
-- `LICENSE`: Details the licensing terms of the project.
-
----
+4. **`LICENSE`**:  
+   Licensing details for the project.
 
 #### **`src/` (Source Code Directory)**
 
-The source code is organized into logical modules for ease of maintenance and extensibility:
+The source code is modularized for easier maintenance:
 
-1. **Core Modules**
-    - `file_handler.py`: Handles finding and validating the latest database file in a given path. Includes utilities
-      such as sorting files based on timestamps or prefixes.
-    - `db_handler.py`: Contains logic for querying SQLite databases and validating database integrity.
-    - `transaction_exporter.py`: Implements the key functionality for:
-        - Querying the database for transaction data.
-        - Writing that data into the designated CSV files:
-            - `transactions.csv`
-            - `transactions_history_previous.csv`
-            - `transactions_history.csv`
+1. **Handlers**:
+    - `file_handler.py`: Handles filesystem-level operations such as locating the latest `.sql` file.
+    - `db_handler.py`: Encapsulates logic for fetching data from SQLite databases.
+    - `google_sheets_handler.py`: Manages interactions with Google Sheets, including reading and appending rows.
 
-2. **Utilities**
-    - `logger.py`: Centralized logging functionality for the application. Configures error, debug, and info logs for
-      tracking program behavior.
-    - `csv_utils.py`: Utility functions to:
-        - Merge or append CSV files.
-        - Back up old CSV files (e.g., creating `transactions_history_previous.csv`).
+2. **Utilities**:
+    - `logger.py`: Provides centralized logging functionality for debugging and monitoring.
+    - `csv_utils.py`: Handles CSV operations like backing up old files or processing rows.
+    - `formatter.py`: Maps and formats transaction data fields (e.g., categories, timestamps).
+    - `error_handling.py`: Implements custom decorators for exception handling.
 
----
+3. **Core Logic**:
+    - `transaction_entity.py`: Represents a single transaction and provides utilities for converting to various formats.
+    - `transaction_exporter.py`: Contains the main transaction processing logic. Supports:
+        - Fetching transactions from the database.
+        - Comparing data against historic or Google Sheets records and identifying new entries.
+        - Writing output to CSV or Google Sheets.
 
 #### **`tests/` (Unit Tests Directory)**
 
-This directory contains unit tests for the core modules:
-
-- `test_file_handler.py`: Ensures the file-handling functions work as expected, including locating and validating
-  database files.
-- `test_transaction_exporter.py`: Verifies the functionality of exporting data to CSVs.
-- `test_db_handler.py`: Tests database-related functions, including SQL query execution and validation.
+Unit tests for individual components to ensure proper functionality (e.g., file handling, data processing, and database
+interactions).
 
 ---
 
@@ -112,32 +116,67 @@ This directory contains unit tests for the core modules:
 Run the program using the following command:
 
 ```bash
-python main.py <db_directory> <output_directory>
+python main.py <db_directory>
 ```
 
-- `<db_directory>`: The path to the directory containing the database files. If absent, the application uses the current
-  directory by default.
-- `<output_directory>`: The path to the directory where the CSV files will be saved. If not specified, defaults to the
-  database directory.
+- `<db_directory>`: Required. Path to the directory containing the database files.
 
 ---
 
-### Example:
+### Modes of Operation
 
-1. Assume your SQLite database files (`cashew_*.sql`) are in a folder called `/data/dbs/`, and you want the CSV files
-   saved to `/data/exports/`.
-2. Run this command:
+#### 1. Appending to Google Sheets:
 
+By default, the application will locate the latest database and append new transactions to a preconfigured Google Sheets
+document. This requires a Google Sheets API setup.
+
+#### 2. CSV Export *(Optional)*:
+
+To enable the CSV export feature, uncomment the `fetch_and_export()` function in `main.py`. This will:
+
+- Locate the latest database.
+- Generate the following CSV files in the specified output directory:
+    - `transactions.csv`
+    - `transactions_history_previous.csv`
+    - `transactions_history.csv`
+
+---
+
+### Example (Google Sheets):
+
+Suppose the database files are stored in `/data/dbs/`.
+
+```bash
+python main.py /data/dbs/
+```
+
+What happens:
+
+1. `TransactionExporter` fetches transactions from the latest database file in `/data/dbs/`.
+2. Filters new transactions against existing rows in the Google Sheet.
+3. Appends the new transactions to the sheet.
+
+---
+
+### Example (CSV Export):
+
+Uncomment the `fetch_and_export()` function in `main.py` and re-run:
+
+```bash
+python main.py /data/dbs/ /data/exports/
+```
+
+---
+
+### Adding Custom Transactions:
+
+To add predefined transactions to the Google Sheet:
+
+1. Uncomment the `add_custom()` function in `main.py`.
+2. Run the script:
    ```bash
-   python main.py /data/dbs/ /data/exports/
+   python main.py
    ```
-
-3. The application will:
-    - Locate the most recent file with the prefix `cashew` and the `.sql` extension in `/data/dbs/`.
-    - Export the transaction data to the following CSV files in `/data/exports/`:
-        - `transactions.csv`
-        - `transactions_history_previous.csv`
-        - `transactions_history.csv`
 
 ---
 
@@ -145,44 +184,41 @@ python main.py <db_directory> <output_directory>
 
 ### Requirements
 
-- **Python Version**: Python 3.10 or newer
-- **Dependencies**: Install the required libraries with `pip`:
-
+- **Python Version**: 3.10 or newer
+- **Required Libraries**: Install all required dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-
----
 
 ### Setup
 
 1. Clone the repository:
-
    ```bash
    git clone <repository_url>
    ```
 
-2. Navigate to the directory:
-
+2. Navigate to the project directory:
    ```bash
-   cd transaction_exporter
+   cd budget_sync
    ```
 
-3. Install required dependencies:
-
+3. Install the dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
-4. Run the program via the [Usage](#usage) instructions.
+4. Configure your Google Sheets API credentials. Refer to:
+    - Google Cloud Console for enabling the API.
+    - The `google_sheets_handler` module for authentication setup.
+
+5. Run the program using the [Usage](#usage) instructions.
 
 ---
 
 ## Notes
 
-- Ensure database files conform to the naming convention (`<DB_FILE_PREFIX>_<timestamp>.<DB_FILE_SUFFIX>`), where:
-    - `DB_FILE_PREFIX`: Default prefix is `cashew`.
-    - `DB_FILE_SUFFIX`: File extension, typically `.sql`.
-- All output files (`transactions.csv`, etc.) are placed in the same directory as the database files.
-
----
+- Ensure database files adhere to the naming convention `<DB_FILE_PREFIX>_<timestamp>.<DB_FILE_SUFFIX>`:
+    - `DB_FILE_PREFIX` default: `cashew`
+    - `DB_FILE_SUFFIX` default: `.sql`.
+- Output (CSV or Sheets) depends on the mode of operation in `main.py`. Adjust configurations as needed.
+- Logs are generated to provide detailed insights into actions performed during execution.
