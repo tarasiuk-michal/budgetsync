@@ -33,7 +33,6 @@ Optional Features:
     - `add_custom()`: Adds predefined transactions to the Google Sheets document (currently commented out).
 """
 
-
 logger = setup_logger(__name__)
 
 # Dynamically add the parent directory of 'src' to sys.path

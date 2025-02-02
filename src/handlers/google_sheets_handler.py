@@ -48,8 +48,9 @@ class GoogleSheetsHandler(Logging):
                     self.credentials_file)
                 credentials = self._authenticate_with_installed_app_flow()
             else:
-                self.logger.error("No valid credentials file found for authentication.")
-                raise FileNotFoundError("No valid credentials file found for authentication.")
+                msg = f"No valid credentials file found for authentication under {self.credentials_file}."
+                self.logger.error(msg)
+                raise FileNotFoundError(msg)
 
             self.service = build('sheets', 'v4', credentials=credentials)
             self.logger.info("Google Sheets API service successfully authenticated and initialized.")
