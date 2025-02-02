@@ -2,7 +2,7 @@ import os
 import sys
 from datetime import datetime
 
-from config import MY_SPREADSHEET_ID, DB_FILE_PREFIX, DB_FILE_SUFFIX
+from config import MY_SPREADSHEET_ID
 from src.handlers.file_handler import FileHandler
 from src.handlers.google_sheets_handler import GoogleSheetsHandler
 from src.transaction_entity import TransactionEntity
@@ -13,44 +13,39 @@ from src.utils.logger import setup_logger
 """
 main.py
 
-Exports transaction data from the database to CSV files or Google Sheets.
+Exports transaction data from the database to Google Sheets or CSV files.
 
 Features:
 - Identifies the latest SQL database file with a defined prefix in the specified directory.
-- Supports exporting to CSV files or appending data to a Google Sheets document.
-- Generates the following files (for CSV export):
-    - `transactions.csv`: Stores new transactions.
-    - `transactions_history_previous.csv`: Backs up the previous transaction history.
-    - `transactions_history.csv`: Combines old and new transaction data.
+- Supports appending new transaction data to a Google Sheets document.
+- Optionally supports exporting data to CSV files (this feature is currently inactive).
+- (Optional) Adds custom transactions to the Google Sheet (add_custom function is defined but not called).
 
 Usage:
-    python main.py [db_directory] [output_directory]
+    python main.py [db_directory]
 
 Arguments:
     db_directory: Path to the directory containing SQL database files.
                   Defaults to ./db (if it exists) or ./ (current working directory).
-    output_directory: Path where output files will be saved. Only applicable for CSV export.
-                      Defaults to ./output (if it exists) or ./ (current working directory).
+
+Optional Features:
+    - `fetch_and_export()`: Exports data to CSV files (currently commented out).
+    - `add_custom()`: Adds predefined transactions to the Google Sheets document (currently commented out).
 """
 
 logger = setup_logger(__name__)
 
 # Dynamically add the parent directory of 'src' to sys.path
+logger.debug("Setting up dynamic sys.path for the parent directory of 'src'.")
 current_dir = os.path.dirname(os.path.abspath(__file__))  # Get the current file's directory
 parent_dir = os.path.abspath(os.path.join(current_dir, ".."))  # Navigate one level up
 work_dir = os.getcwd()
+
+logger.debug(f"Current dir: {current_dir}, Parent dir: {parent_dir}, Work dir: {work_dir}")
+
 if parent_dir not in sys.path:
+    logger.debug("Adding parent directory to sys.path.")
     sys.path.insert(0, parent_dir)
-
-
-def main() -> None:
-    # add_custom()
-    # fetch_and_export()
-    fetch_and_append()
-
-
-if __name__ == "__main__":
-    main()
 
 
 def add_custom():
@@ -59,15 +54,18 @@ def add_custom():
 
     :return: None
     """
-    # Initialize the Google Sheets handler with the spreadsheet ID
+    logger.debug("Entering add_custom() function.")
+
+    logger.debug("Initializing GoogleSheetsHandler with MY_SPREADSHEET_ID.")
     g_handler = GoogleSheetsHandler(MY_SPREADSHEET_ID)
 
-    # Create transaction entities with sample data
+    logger.debug("Creating custom transaction entities (examples).")
     r1 = TransactionEntity('', 'wyrównanie', -7.5, Categories.PRZYJEMNOŚCI.value, datetime(2025, 1, 20), 'Michał')
     r2 = TransactionEntity('', 'wyrównanie', -7.5, Categories.PRZYJEMNOŚCI.value, datetime(2025, 1, 20), 'Daga')
 
-    # Append the transactions to the Google Sheet
+    logger.debug("Appending the transaction entities to Google Sheets.")
     g_handler.append_transactions([r1.to_list(), r2.to_list()])
+    logger.debug("Custom transactions successfully added to Google Sheets.")
 
 
 def fetch_and_export():
@@ -80,24 +78,27 @@ def fetch_and_export():
     3. Find the latest SQL database file in the specified directory.
     4. Initialize the TransactionExporter and export transaction data.
     """
-    # Retrieve database and output directories from command-line arguments
+    logger.debug("Entering fetch_and_export() function.")
+
+    logger.debug("Retrieving database and output directory paths from command-line arguments.")
     db_directory = FileHandler.get_db_directory(sys.argv)
     output_directory = FileHandler.get_output_directory(sys.argv)
 
     logger.info(f"Searching for database files in: {db_directory}")
     logger.info(f"Output files will be stored in: {output_directory}")
 
-    # Create the output directory if it does not exist
+    logger.debug("Creating the output directory if it does not exist.")
     os.makedirs(output_directory, exist_ok=True)
 
     try:
-        # Find the most recent SQL file matching the defined prefix and suffix
+        logger.debug("Finding the most recent SQL file matching the defined prefix and suffix.")
         latest_sql_file = FileHandler.find_latest_sql_file(db_directory)
-        logger.info(
-            f"Located latest database file with prefix '{DB_FILE_PREFIX}' and suffix '{DB_FILE_SUFFIX}': {latest_sql_file}")
+        logger.info(f"Located latest database file: {latest_sql_file}")
 
-        # Initialize the transaction exporter and perform data export
+        logger.debug("Initializing TransactionExporter with the found database file.")
         exporter = TransactionExporter(latest_sql_file, output_directory)
+
+        logger.debug("Calling fetch_and_export() method of TransactionExporter.")
         exporter.fetch_and_export()
 
     except FileNotFoundError as e:
@@ -118,22 +119,29 @@ def fetch_and_append():
     3. Initialize the Google Sheets handler and transaction exporter.
     4. Fetch and append new transactions to the Google Sheet.
     """
-    # Retrieve the database directory from command-line arguments
+    logger.debug("Entering fetch_and_append() function.")
+
+    logger.debug("Retrieving database directory from command-line arguments.")
     db_directory = FileHandler.get_db_directory(sys.argv)
     logger.info(f"Searching for database files in: {db_directory}")
 
     try:
-        # Find the most recent SQL file in the specified directory
+        logger.debug("Finding the most recent SQL file in the database directory.")
         latest_sql_file = FileHandler.find_latest_sql_file(db_directory)
-        logger.info(
-            f"Located the latest database file matching '{DB_FILE_PREFIX}' and '{DB_FILE_SUFFIX}': {latest_sql_file}")
+        logger.info(f"Located latest database file: {latest_sql_file}")
 
-        # Initialize the transaction exporter and Google Sheets handler
-        exporter = TransactionExporter(latest_sql_file)
+        logger.debug("Initializing GoogleSheetsHandler with MY_SPREADSHEET_ID.")
         g_handler = GoogleSheetsHandler(MY_SPREADSHEET_ID)
+        logger.info(f"GoogleSheetsHandler initialized for sheet ID: {MY_SPREADSHEET_ID}")
 
-        # Fetch and append new transactions to Google Sheets
+        logger.debug("Initializing TransactionExporter with the database file.")
+        exporter = TransactionExporter(latest_sql_file)
+        logger.info(f"TransactionExporter initialized for database file: {latest_sql_file}")
+
+        logger.debug("Calling fetch_and_append() method of TransactionExporter to update Google Sheets.")
         exporter.fetch_and_append(latest_sql_file, g_handler)
+
+        logger.info("New transactions successfully appended to Google Sheets.")
 
     except FileNotFoundError as e:
         logger.error(f"Database file not found: {e}")
@@ -141,3 +149,21 @@ def fetch_and_append():
     except Exception as e:
         logger.error(f"An unexpected error occurred during the process: {e}")
         sys.exit(1)
+
+
+def main() -> None:
+    logger.debug("Entering main() function. Starting the main program flow.")
+
+    # logger.debug("Calling add_custom() to add transactions to Google Sheets.")
+    # add_custom()
+    #
+    # logger.debug("Preparing to call fetch_and_export() to handle CSV export.")
+    # fetch_and_export()  # Uncomment if needed
+
+    logger.debug("Preparing to call fetch_and_append() to handle appending data to Google Sheets.")
+    fetch_and_append()
+
+
+if __name__ == "__main__":
+    logger.debug("Script execution started (__name__ == '__main__').")
+    main()

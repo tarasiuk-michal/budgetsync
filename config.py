@@ -72,4 +72,4 @@ MY_SPREADSHEET_ID = WYDATKI_FILE_ID
 MY_DEFAULT_RANGE = WYDATKI_DEFAULT_RANGE
 MY_SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/" + MY_SPREADSHEET_ID + "/edit"
 # Path to your service account key file
-SERVICE_ACCOUNT_FILE = "credentials.json"  # File downloaded from Google Cloud Console
+SERVICE_ACCOUNT_FILE = "./../credentials.json"  # File downloaded from Google Cloud Console
