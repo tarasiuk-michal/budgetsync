@@ -26,14 +26,18 @@ import logging
 
 from src.utils.enums import Categories
 
-LOG_LEVEL = logging.INFO
+LOG_LEVEL = logging.DEBUG
 
 # Constants for file lookup
 DB_FILE_PREFIX: str = "cashew"  # Prefix for database `.sql` files
 DB_FILE_SUFFIX: str = "sql"  # Suffix for database files
 
 # Regex pattern to match filenames
-SQL_FILE_NAME_REGEX = rf"^{DB_FILE_PREFIX}-db-v\d+-X\d+ \w+ \w+ \d+-\d+-\d+-\d+-\d+-\d+-\d+Z\.{DB_FILE_SUFFIX}$"
+SQL_FILE_NAME_REGEX = (
+    rf"^{DB_FILE_PREFIX}.*"  # Any arbitrary characters after "cashew"
+    rf"(\d{{4}}-\d{{2}}-\d{{2}}-\d{{2}}-\d{{2}}-\d{{2}}-\d{{3}}Z)"  # Look for timestamp directly
+    rf"\.{DB_FILE_SUFFIX}$"  # Ends with ".sql"
+)
 SQL_FILE_DATETIME_REGEX = r"\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}-\d+Z"
 SQL_FILE_DATETIME_FORMAT = "%Y-%m-%d-%H-%M-%S-%fZ"
 
@@ -72,4 +76,4 @@ MY_SPREADSHEET_ID = WYDATKI_FILE_ID
 MY_DEFAULT_RANGE = WYDATKI_DEFAULT_RANGE
 MY_SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/" + MY_SPREADSHEET_ID + "/edit"
 # Path to your service account key file
-SERVICE_ACCOUNT_FILE = "./../credentials.json"  # File downloaded from Google Cloud Console
+GSHEETS_AUTH_CREDENTIALS_FILE = "credentials.json"  # File downloaded from Google Cloud Console
