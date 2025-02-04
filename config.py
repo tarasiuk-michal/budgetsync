@@ -26,7 +26,7 @@ import logging
 
 from src.utils.enums import Categories
 
-LOG_LEVEL = logging.DEBUG
+LOG_LEVEL = logging.ERROR
 
 # Constants for file lookup
 DB_FILE_PREFIX: str = "cashew"  # Prefix for database `.sql` files
