@@ -1,12 +1,12 @@
 import os
 import shutil
-from typing import List, Tuple, Optional
+from typing import Tuple, Optional, Set
 
 import config
 from src.handlers.csv_handler import CSVHandler
 from src.handlers.db_handler import DBHandler
 from src.handlers.google_sheets_handler import GoogleSheetsHandler
-from src.transaction_entity import TransactionEntity
+from src.model.transaction_entity import TransactionEntity
 from src.utils.error_handling import log_exceptions
 from src.utils.fomatter import Formatter
 from src.utils.logger import Logging
@@ -49,36 +49,44 @@ class TransactionExporter(Logging):
             sheet_range (str): The range in A1 notation within the Google Sheet for fetching existing data.
         """
         # Step 1: Fetch all transactions from the database
-        transactions = DBHandler.fetch_transactions(db_file, config.DATE_FILTER)
-        if not transactions:
+        db_transactions = DBHandler.fetch_transactions(db_file, config.DATE_FILTER)
+        if not db_transactions:
             self.logger.info("No transactions found in database, skipping operation.")
             return
 
-        # Step 2: Map database rows to TransactionEntity instances
-        transaction_entities = [TransactionEntity.from_db_row(tuple(row)) for row in transactions]
+        # Step 2: Map database transactions to TransactionEntity instances
+        db_transaction_entities: Set[TransactionEntity] = {TransactionEntity.from_db_row(tuple(row)) for row in
+                                                           db_transactions}
 
-        # Step 3: Get existing transactions from the sheet
-        existing_rows: List[List[str]] = sheet_handler.read_transactions(sheet_range)
-        # Assuming ID is in the first column
-        existing_ids = {row[0] for row in existing_rows} if existing_rows else set()
+        # Step 3: Fetch existing transactions from the Google Sheet
+        existing_transactions: Set[TransactionEntity] = self.get_existing_rows(sheet_handler, sheet_range)
 
-        # Step 4: Filter only new transactions
-        new_transactions = [txn for txn in transaction_entities if txn.id not in existing_ids]
+        # Step 4: Filter only new transactions (using set operations for efficiency)
+        new_transactions = db_transaction_entities - existing_transactions
 
-        if not new_transactions:
+        if not new_transactions or len(new_transactions) == 0:
             self.logger.info("No new transactions to append to the Google Sheet.")
             return
 
-        # Convert the new transactions into lists
-        rows_to_append = [txn.to_list() for txn in new_transactions]
-
         # Step 5: Append new transactions to the Google Sheet
         try:
-            sheet_handler.append_transactions(rows_to_append)
+            sheet_handler.append_transactions(new_transactions)
             self.logger.info(f"Appended {len(new_transactions)} new transactions to the Google Sheet.")
         except Exception as e:
             self.logger.exception("An error occurred while appending transactions to the Google Sheet: %s", e)
             raise
+
+    def get_existing_rows(self, sheet_handler, sheet_range):
+        """Retrieves existing transactions from the Google Sheet and converts them to TransactionEntity objects."""
+        existing_rows = sheet_handler.read_transactions(sheet_range)
+        existing_transactions = set()
+        for row in existing_rows:
+            try:
+                existing_transactions.add(TransactionEntity.from_db_row(tuple(row)))
+            except Exception as e:
+                self.logger.warning(f"Error converting existing row to TransactionEntity: {e}. Row: {row}")
+                # Handle the error appropriately (e.g., skip the row, raise an exception, etc.)
+        return existing_transactions
 
     @log_exceptions(Logging.get_logger())
     def fetch_and_export(self) -> None:

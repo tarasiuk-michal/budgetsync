@@ -5,7 +5,7 @@ from datetime import datetime
 from config import MY_SPREADSHEET_ID
 from src.handlers.file_handler import FileHandler
 from src.handlers.google_sheets_handler import GoogleSheetsHandler
-from src.transaction_entity import TransactionEntity
+from src.model.transaction_entity import TransactionEntity
 from src.transaction_exporter import TransactionExporter
 from src.utils.enums import Categories
 from src.utils.logger import setup_logger

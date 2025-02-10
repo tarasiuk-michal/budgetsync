@@ -29,11 +29,11 @@ class Formatter:
             return str(unix_timestamp)
 
     @staticmethod
-    def format_amount(amount: float) -> str:
+    def format_amount(amount: str) -> str:
         """Formats the amount with a comma as the decimal separator."""
         if amount is None:
             raise ValueError("Amount cannot be None")
-        return f"{amount:.2f}".replace(".", ",")
+        return f"{float(amount):.2f}".replace(".", ",")
 
     @staticmethod
     def map_category(category_name: str) -> str:
