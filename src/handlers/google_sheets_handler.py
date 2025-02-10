@@ -6,7 +6,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-from config import MY_DEFAULT_RANGE
+from config import SERVICE_ACCOUNT_FILE, MY_DEFAULT_RANGE
 from src.utils.logger import Logging
 
 # Define the required Google API scope
@@ -110,12 +110,12 @@ class GoogleSheetsHandler(Logging):
             self.logger.exception("An error occurred while reading transactions: %s", error)
             return []
 
-    def append_transactions(self, transactions: List[List[str]], range_name: Optional[str] = None) -> None:
+    def append_transactions(self, transactions: List[TransactionEntity], range_name: Optional[str] = None) -> None:
         """
         Appends a list of transactions to the specified range in the Google Sheet.
 
         Args:
-            transactions (List[List[str]]): A list of rows, where each row represents a transaction to append.
+            transactions (List[TransactionEntity]): A list of rows, where each row represents a transaction to append.
             range_name (str, optional): The target range in A1 notation (e.g., "Sheet1!A1:D").
                                         If not provided, the first empty row will be determined automatically.
         """
@@ -130,8 +130,11 @@ class GoogleSheetsHandler(Logging):
         self.logger.info("Appending transactions: %s to range: %s", transactions, range_name)
 
         try:
+            # Convert the new transactions into lists
+            values = [txn.to_list() for txn in transactions]
+
             sheet = self.service.spreadsheets()
-            body = {'values': transactions}
+            body = {'values': values}
 
             # Ensure arguments to append match expected structure
             sheet.values().append(
