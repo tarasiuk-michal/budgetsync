@@ -2,7 +2,7 @@ import os
 import sys
 from datetime import datetime
 
-from config import MY_SPREADSHEET_ID
+from config import MY_SPREADSHEET_ID, GSHEETS_AUTH_CREDENTIALS_FILE
 from src.handlers.file_handler import FileHandler
 from src.handlers.google_sheets_handler import GoogleSheetsHandler
 from src.transaction_entity import TransactionEntity
@@ -40,6 +40,7 @@ logger.debug("Setting up dynamic sys.path for the parent directory of 'src'.")
 current_dir = os.path.dirname(os.path.abspath(__file__))  # Get the current file's directory
 parent_dir = os.path.abspath(os.path.join(current_dir, ".."))  # Navigate one level up
 work_dir = os.getcwd()
+auth_file = str(os.path.join(current_dir, GSHEETS_AUTH_CREDENTIALS_FILE))
 
 logger.debug(f"Current dir: {current_dir}, Parent dir: {parent_dir}, Work dir: {work_dir}")
 
@@ -130,9 +131,11 @@ def fetch_and_append():
         latest_sql_file = FileHandler.find_latest_sql_file(db_directory)
         logger.info(f"Located latest database file: {latest_sql_file}")
 
-        logger.debug("Initializing GoogleSheetsHandler with MY_SPREADSHEET_ID.")
-        g_handler = GoogleSheetsHandler(MY_SPREADSHEET_ID)
-        logger.info(f"GoogleSheetsHandler initialized for sheet ID: {MY_SPREADSHEET_ID}")
+        logger.debug(
+            f"Initializing GoogleSheetsHandler with sheet ID: {MY_SPREADSHEET_ID} and credentials file: {auth_file}")
+        g_handler = GoogleSheetsHandler(MY_SPREADSHEET_ID, credentials_file=auth_file)
+        logger.info(
+            f"GoogleSheetsHandler initialized for sheet ID: {MY_SPREADSHEET_ID} and credentials file: {auth_file}")
 
         logger.debug("Initializing TransactionExporter with the database file.")
         exporter = TransactionExporter(latest_sql_file)
@@ -144,7 +147,7 @@ def fetch_and_append():
         logger.info("New transactions successfully appended to Google Sheets.")
 
     except FileNotFoundError as e:
-        logger.error(f"Database file not found: {e}")
+        logger.error(f"File not found: {e}")
         sys.exit(1)
     except Exception as e:
         logger.error(f"An unexpected error occurred during the process: {e}")
