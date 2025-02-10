@@ -108,7 +108,7 @@ class FileHandler:
         if len(cli_args) > 1:
             db_path = os.path.abspath(cli_args[1])
             # Check if it's a file, as the db should be a file, not a directory
-            if os.path.isfile(db_path):
+            if os.path.isdir(db_path):
                 logger.debug(f"Using provided DB file: {db_path}")
                 return db_path
             else:

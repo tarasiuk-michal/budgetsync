@@ -8,6 +8,9 @@ types-pytz
 protobuf>=5.29.3
 google-api-python-client>=2.159.0
 google-auth-oauthlib>=1.2.1
-requests
 lxml
 SQLAlchemy
+certifi>=2024.12.14
+charset-normalizer>=2.0.4
+idna>=3.7
+requests>=2.32.2

@@ -7,7 +7,6 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 from config import SERVICE_ACCOUNT_FILE, MY_DEFAULT_RANGE
-from src.model.transaction_entity import TransactionEntity
 from src.utils.logger import Logging
 
 # Define the required Google API scope
@@ -40,10 +39,10 @@ class GoogleSheetsHandler(Logging):
             return
 
         try:
-            if os.path.exists(SERVICE_ACCOUNT_FILE):
-                self.logger.info("Authenticating with Service Account file: %s", SERVICE_ACCOUNT_FILE)
-                credentials = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
-            elif self.credentials_file and os.path.exists(self.credentials_file):
+            if self.credentials_file and os.path.exists(self.credentials_file):
+                self.logger.info("Authenticating with Service Account file: %s", self.credentials_file)
+                credentials = Credentials.from_service_account_file(self.credentials_file, scopes=SCOPES)
+            elif not self.credentials_file:
                 self.logger.warning(
                     "Service account file not found. Fallback to Installed App Flow with credentials file: %s",
                     self.credentials_file)
