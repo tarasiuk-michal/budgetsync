@@ -70,7 +70,7 @@ CATEGORIES = Categories.get()
 
 # Allow these scopes for the app
 WYDATKI_FILE_ID = '1Cqed7-_t6TFt1V6PPuM6hCFzcUAYZQ7Zg_FnotHfdTQ'
-WYDATKI_DEFAULT_RANGE = 'A60:G'
+WYDATKI_DEFAULT_RANGE = 'wydatki_2025!G2:M'
 GOOGLE_API_USE_SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 MY_SPREADSHEET_ID = WYDATKI_FILE_ID
 MY_DEFAULT_RANGE = WYDATKI_DEFAULT_RANGE
